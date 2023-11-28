@@ -1,4 +1,4 @@
-package files_binomiales
+package filebinomiale
 
 import "projet/cle"
 

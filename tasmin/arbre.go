@@ -1,4 +1,4 @@
-package tasMin
+package tasmin
 
 import (
 	"fmt"

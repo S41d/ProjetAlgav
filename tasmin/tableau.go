@@ -1,4 +1,4 @@
-package tasMin
+package tasmin
 
 import (
 	"errors"
@@ -64,9 +64,9 @@ func Construction(cles []cle.Cle) Tableau {
 	return t
 }
 
-func Union(t1 Tableau, t2 Tableau) Tableau {
-	t := append(t1, t2...)
-	return Construction(t)
+func (t *Tableau) Union(o Tableau) Tableau {
+	*t = append(*t, o...)
+	return Construction(*t)
 }
 
 func (t *Tableau) trier(index int) {
