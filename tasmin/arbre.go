@@ -165,6 +165,14 @@ func (t *Arbre) reOrganiser() {
 	} else if t.leftChild != nil {
 		smallest = t.leftChild
 	} else {
+		return
+	}
+	if smallest.cle.Inf(t.cle) {
+		t.cle, smallest.cle = smallest.cle, t.cle
+		smallest.reOrganiser()
+	}
+}
+
 // AjoutIteratif ajoute de manière itérative une liste de clés à l'arbre.
 func (t *Arbre) AjoutIteratif(cles []cle.Cle) {
 	// Appeler la fonction pour gérer les signaux (à implémenter ailleurs dans votre code)
