@@ -107,27 +107,27 @@ func TestArbre_Ajout(t1 *testing.T) {
 				expectedSize = 1
 				expectedHeight = 1
 				expectedNode = t.cle
-				expectedStringTree = "Tas{\n          cle: 2,\n          left: nil,\n          right: nil\n        }"
+				expectedStringTree = "Tas{\n  cle: 2,\n  left: nil,\n  right: nil\n}"
 			case "Add key to a 1 node tree":
 				expectedSize = 2
 				expectedHeight = 2
 				expectedNode = t.leftChild.cle
-				expectedStringTree = "Tas{\n          cle: 2,\n          left: Tas{\n            cle: 6,\n            left: nil,\n            right: nil\n          },\n          right: nil\n        }"
+				expectedStringTree = "Tas{\n  cle: 2,\n  left: Tas{\n    cle: 6,\n    left: nil,\n    right: nil\n  },\n  right: nil\n}"
 			case "Add key to create a left-skewed tree":
 				expectedSize = 3
 				expectedHeight = 2
 				expectedNode = t.rightChild.cle
-				expectedStringTree = "Tas{\n          cle: 2,\n          left: Tas{\n            cle: 6,\n            left: nil,\n            right: nil\n          },\n          right: Tas{\n            cle: 5,\n            left: nil,\n            right: nil\n          }"
+				expectedStringTree = "Tas{\n  cle: 2,\n  left: Tas{\n    cle: 6,\n    left: nil,\n    right: nil\n  },\n  right: Tas{\n    cle: 5,\n    left: nil,\n    right: nil\n  }\n}"
 			case "Add key to create a balanced tree":
 				expectedSize = 4
 				expectedHeight = 3
 				expectedNode = t.leftChild.leftChild.cle
-				expectedStringTree = "Tas{\n          cle: 2,\n          left: Tas{\n            cle: 6,\n            left: Tas{\n              cle: 10,\n              left: nil,\n              right: nil\n            },\n            right: nil\n          },\n          right: Tas{\n            cle: 5,\n            left: nil,\n            right: nil\n          }"
+				expectedStringTree = "Tas{\n  cle: 2,\n  left: Tas{\n    cle: 6,\n    left: Tas{\n      cle: 10,\n      left: nil,\n      right: nil\n    },\n    right: nil\n  },\n  right: Tas{\n    cle: 5,\n    left: nil,\n    right: nil\n  }\n}"
 			case "Add key to create a tree + switches":
 				expectedSize = 3
 				expectedHeight = 2
 				expectedNode = t.cle
-				expectedStringTree = "Tas{\n          cle: 2,\n          left: Tas{\n            cle: 5,\n            left: nil,\n            right: nil\n          },\n          right: Tas{\n            cle: 6,\n            left: nil,\n            right: nil\n          }"
+				expectedStringTree = "Tas{\n  cle: 2,\n  left: Tas{\n    cle: 5,\n    left: nil,\n    right: nil\n  },\n  right: Tas{\n    cle: 6,\n    left: nil,\n    right: nil\n  }\n}"
 				// Ajouter d'autres cas de test au besoin.
 			}
 
@@ -215,12 +215,12 @@ func TestArbre_AjoutIteratif(t1 *testing.T) {
 			case "Add keys iteratively to an empty tree":
 				expectedSize = len(tt.args.cles)
 				expectedHeight = 2
-				expectedStringTree = "Tas{\n          cle: 2,\n          left: nil,\n          right: nil\n        }"
+				expectedStringTree = "Tas{\n  cle: 2,\n  left: Tas{\n    cle: 6,\n    left: nil,\n    right: nil\n  },\n  right: Tas{\n    cle: 5,\n    left: nil,\n    right: nil\n  }\n}"
 
 			case "Add keys iteratively to a non-empty tree":
 				expectedSize = len(tt.args.cles) + 1
 				expectedHeight = 2
-				expectedStringTree = "Tas{\n          cle: 2,\n          left: Tas{\n            cle: 6,\n            left: nil,\n            right: nil\n          },\n          right: Tas{\n            cle: 5,\n            left: nil,\n            right: nil\n          }\n        }"
+				expectedStringTree = "Tas{\n  cle: 2,\n  left: Tas{\n    cle: 6,\n    left: nil,\n    right: nil\n  },\n  right: Tas{\n    cle: 5,\n    left: nil,\n    right: nil\n  }\n}"
 			}
 
 			if t.Size != expectedSize {
@@ -278,7 +278,7 @@ func TestArbre_String(t1 *testing.T) {
 				leftChild:  nil,
 				rightChild: nil,
 			},
-			want: "Tas{\n          cle: 0,\n          left: nil,\n          right: nil\n        }",
+			want: "Tas{\n  cle: 0,\n  left: nil,\n  right: nil\n}\n",
 		},
 		{
 			name: "String representation of a non empty tree",
@@ -290,7 +290,7 @@ func TestArbre_String(t1 *testing.T) {
 				leftChild:  &Arbre{cle: cle2, Size: 1, height: 1, parent: nil},
 				rightChild: &Arbre{cle: cle3, Size: 1, height: 1, parent: nil},
 			},
-			want: "Tas{\n          cle: 2,\n          left: Tas{\n            cle: 6,\n            left: nil,\n            right: nil\n          },\n          right: Tas{\n            cle: 5,\n            left: nil,\n            right: nil\n          }\n        }",
+			want: "Tas{\n  cle: 2,\n  left: Tas{\n    cle: 6,\n    left: nil,\n    right: nil\n  },\n  right: Tas{\n    cle: 5,\n    left: nil,\n    right: nil\n  }\n}\n",
 		},
 	}
 
@@ -345,7 +345,7 @@ func TestArbre__string(t1 *testing.T) {
 				rightChild: &Arbre{cle: cle3, Size: 1, height: 1, parent: nil},
 			},
 			args: args{indent: 0},
-			want: "Tas{\n          cle: 12,\n          left: Tas{\n            cle: 16,\n            left: nil,\n            right: nil\n          },\n          right: Tas{\n            cle: 15,\n            left: nil,\n            right: nil\n          }\n        }",
+			want: "Tas{\n  cle: 12,\n  left: Tas{\n    cle: 16,\n    left: nil,\n    right: nil\n  },\n  right: Tas{\n    cle: 15,\n    left: nil,\n    right: nil\n  }\n}",
 		},
 		// Ajouter plus de cas de test au besoin.
 	}

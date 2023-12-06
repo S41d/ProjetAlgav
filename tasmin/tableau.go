@@ -35,6 +35,8 @@ func (t *Tableau) SupprMin() (cle.Cle, error) {
 
 	// Remplacer la clé à l'indice 0 par la dernière clé dans le tableau.
 	(*t)[0] = (*t)[len(*t)-1]
+	// Supprimer le dernier élément
+	*t = (*t)[1:]
 
 	// Appeler la méthode de tri pour maintenir la propriété du tas.
 	t.trier(0)
@@ -61,9 +63,7 @@ func (t *Tableau) Ajout(c cle.Cle) {
 	// Réorganiser le tableau tant que la propriété du tas est violée.
 	for currI > 0 && currInfParent {
 		// Échanger la nouvelle clé avec son parent.
-		tmp := (*t)[parentI]
-		(*t)[parentI] = (*t)[currI]
-		(*t)[currI] = tmp
+		(*t)[parentI], (*t)[currI] = (*t)[currI], (*t)[parentI]
 
 		// Mettre à jour les indices pour le prochain tour de boucle.
 		currI = parentI
@@ -138,9 +138,7 @@ func (t *Tableau) trier(index int) {
 
 	// Si le minimum n'est pas l'indice actuel, échanger les éléments et continuer la récursion.
 	if minimum != index {
-		tmp := (*t)[index]
-		(*t)[index] = (*t)[minimum]
-		(*t)[minimum] = tmp
+		(*t)[index], (*t)[minimum] = (*t)[minimum], (*t)[index]
 
 		// Appeler récursivement la méthode trier sur le nouveau indice du minimum.
 		t.trier(minimum)

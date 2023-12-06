@@ -201,7 +201,7 @@ func TestTableau_String(t *testing.T) {
 				cle.Cle{P1: 0, P2: 15},
 				cle.Cle{P1: 0, P2: 14},
 			},
-			want: "Tas{\n          cle: 2,\n          left: Tas{\n            cle: 6,\n            left: Tas{\n              cle: 10,\n              left: Tas{\n                cle: 12,\n                left: nil,\n                right: nil\n              },\n              right: Tas{\n                cle: 15,\n                left: nil,\n                right: nil\n              }\n            },\n            right: Tas{\n              cle: 13,\n              left: Tas{\n                cle: 14,\n                left: nil,\n                right: nil\n              },\n              right: nil\n            }\n          },\n          right: Tas{\n            cle: 5,\n            left: Tas{\n              cle: 7,\n              left: nil,\n              right: nil\n            },\n            right: Tas{\n              cle: 8,\n              left: nil,\n              right: nil\n            }\n          }\n        }",
+			want: "Tas{\n  cle: 2,\n  left: Tas{\n    cle: 6,\n    left: Tas{\n      cle: 10,\n      left: Tas{\n        cle: 12,\n        left: nil,\n        right: nil\n      },\n      right: Tas{\n        cle: 15,\n        left: nil,\n        right: nil\n      }\n    },\n    right: Tas{\n      cle: 13,\n      left: Tas{\n        cle: 14,\n        left: nil,\n        right: nil\n      },\n      right: nil\n    }\n  },\n  right: Tas{\n    cle: 5,\n    left: Tas{\n      cle: 7,\n      left: nil,\n      right: nil\n    },\n    right: Tas{\n      cle: 8,\n      left: nil,\n      right: nil\n    }\n  }\n}\n",
 		},
 	}
 	for _, tt := range tests {
@@ -219,18 +219,21 @@ func TestTableau_SupprMin(t *testing.T) {
 		t       Tableau
 		want    cle.Cle
 		wantErr bool
+		wantTab Tableau
 	}{
 		{
 			name:    "Cas normal",
 			t:       Tableau{cle.Cle{P1: 1, P2: 2}, cle.Cle{P1: 1, P2: 6}, cle.Cle{P1: 1, P2: 5}},
 			want:    cle.Cle{P1: 1, P2: 2},
 			wantErr: false,
+			wantTab: Tableau{cle.Cle{P1: 1, P2: 5}, cle.Cle{P1: 1, P2: 6}},
 		},
 		{
 			name:    "Cas du tableau vide",
 			t:       Tableau{},
 			want:    cle.Cle{},
 			wantErr: true,
+			wantTab: Tableau{},
 		},
 	}
 	for _, tt := range tests {
@@ -242,6 +245,9 @@ func TestTableau_SupprMin(t *testing.T) {
 			}
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("SupprMin() got = %v, want %v", got, tt.want)
+			}
+			if !reflect.DeepEqual(tt.t, tt.wantTab) {
+				t.Errorf("SupprMin() tab = %v, wantTab %v", tt.t, tt.wantTab)
 			}
 		})
 	}
@@ -306,7 +312,9 @@ func TestTableau__string(t *testing.T) {
 				cle.Cle{P1: 0, P2: 14},
 			},
 			args: args{i: 0, indent: 0},
-			want: "Tas{\n          cle: 2,\n          left: Tas{\n            cle: 6,\n            left: Tas{\n              cle: 10,\n              left: Tas{\n                cle: 12,\n                left: nil,\n                right: nil\n              },\n              right: Tas{\n                cle: 15,\n                left: nil,\n                right: nil\n              }\n            },\n            right: Tas{\n              cle: 13,\n              left: Tas{\n                cle: 14,\n                left: nil,\n                right: nil\n              },\n              right: nil\n            }\n          },\n          right: Tas{\n            cle: 5,\n            left: Tas{\n              cle: 7,\n              left: nil,\n              right: nil\n            },\n            right: Tas{\n              cle: 8,\n              left: nil,\n              right: nil\n            }\n          }\n        }"},
+			// want: "Tas{\n          cle: 2,\n          left: Tas{\n            cle: 6,\n            left: Tas{\n              cle: 10,\n              left: Tas{\n                cle: 12,\n                left: nil,\n                right: nil\n              },\n              right: Tas{\n                cle: 15,\n                left: nil,\n                right: nil\n              }\n            },\n            right: Tas{\n              cle: 13,\n              left: Tas{\n                cle: 14,\n                left: nil,\n                right: nil\n              },\n              right: nil\n            }\n          },\n          right: Tas{\n            cle: 5,\n            left: Tas{\n              cle: 7,\n              left: nil,\n              right: nil\n            },\n            right: Tas{\n              cle: 8,\n              left: nil,\n              right: nil\n            }\n          }\n        }"},
+			want: "Tas{\n  cle: 2,\n  left: Tas{\n    cle: 6,\n    left: Tas{\n      cle: 10,\n      left: Tas{\n        cle: 12,\n        left: nil,\n        right: nil\n      },\n      right: Tas{\n        cle: 15,\n        left: nil,\n        right: nil\n      }\n    },\n    right: Tas{\n      cle: 13,\n      left: Tas{\n        cle: 14,\n        left: nil,\n        right: nil\n      },\n      right: nil\n    }\n  },\n  right: Tas{\n    cle: 5,\n    left: Tas{\n      cle: 7,\n      left: nil,\n      right: nil\n    },\n    right: Tas{\n      cle: 8,\n      left: nil,\n      right: nil\n    }\n  }\n}",
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -333,7 +341,8 @@ func TestTableau_trier(t *testing.T) {
 			name: "Cas normal",
 			t:    Tableau{cle.Cle{P1: 0, P2: 10}, cle.Cle{P1: 0, P2: 6}, cle.Cle{P1: 0, P2: 8}, cle.Cle{P1: 0, P2: 15}, cle.Cle{P1: 0, P2: 14}, cle.Cle{P1: 0, P2: 7}, cle.Cle{P1: 0, P2: 2}, cle.Cle{P1: 0, P2: 12}, cle.Cle{P1: 0, P2: 5}, cle.Cle{P1: 0, P2: 13}},
 			args: args{index: 0},
-			want: Tableau{cle.Cle{P1: 0, P2: 2}, cle.Cle{P1: 0, P2: 6}, cle.Cle{P1: 0, P2: 7}, cle.Cle{P1: 0, P2: 10}, cle.Cle{P1: 0, P2: 13}, cle.Cle{P1: 0, P2: 8}, cle.Cle{P1: 0, P2: 10}, cle.Cle{P1: 0, P2: 12}, cle.Cle{P1: 0, P2: 15}, cle.Cle{P1: 0, P2: 14}},
+			want: Tableau{cle.Cle{P1: 0, P2: 6}, cle.Cle{P1: 0, P2: 10}, cle.Cle{P1: 0, P2: 8}, cle.Cle{P1: 0, P2: 15}, cle.Cle{P1: 0, P2: 14}, cle.Cle{P1: 0, P2: 7}, cle.Cle{P1: 0, P2: 2}, cle.Cle{P1: 0, P2: 12}, cle.Cle{P1: 0, P2: 5}, cle.Cle{P1: 0, P2: 13}},
+			// want: Tableau{cle.Cle{P1: 0, P2: 2}, cle.Cle{P1: 0, P2: 6}, cle.Cle{P1: 0, P2: 7}, cle.Cle{P1: 0, P2: 10}, cle.Cle{P1: 0, P2: 13}, cle.Cle{P1: 0, P2: 8}, cle.Cle{P1: 0, P2: 10}, cle.Cle{P1: 0, P2: 12}, cle.Cle{P1: 0, P2: 15}, cle.Cle{P1: 0, P2: 14}},
 		},
 	}
 	for _, tt := range tests {

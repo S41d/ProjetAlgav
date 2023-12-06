@@ -125,7 +125,7 @@ func HexToCle(hex string) Cle {
 
 		// Convertir le caractère hexadécimal en valeur hexadécimale.
 		if char >= '0' && char <= '9' {
-			char = char - '0'
+			char -= '0'
 		} else if char >= 'a' && char <= 'f' {
 			char = char - 'a' + 10
 		} else if char >= 'A' && char <= 'F' {

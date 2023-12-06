@@ -30,11 +30,15 @@ var index = 0
 
 // Ajout ajoute un élément à l'arbre.
 func (t *Arbre) Ajout(c cle.Cle) {
+	if t.Size == 0 {
+		*t = NewArbre(c)
+		return
+	}
 	// Initialisation du pointeur courant à la racine de l'arbre
 	curr := t
 
 	// Vérifier si l'arbre est plein (2^h - 1 nœuds), où h est la hauteur actuelle de l'arbre
-	if curr.Size == (2<<curr.height)-1 {
+	if curr.Size == pow(2, curr.height)-1 {
 		// Si l'arbre est plein, descendre à gauche jusqu'au dernier niveau
 		for curr.leftChild != nil {
 			curr.Size += 1
@@ -102,6 +106,65 @@ func (t *Arbre) Ajout(c cle.Cle) {
 	} // for
 }
 
+func ConstructionArbre(cles []cle.Cle) Arbre {
+	if len(cles) == 1 {
+		return NewArbre(cles[0])
+	}
+	hauteur := int(math.Floor(math.Log2(float64(len(cles))))) + 1
+	numNodes := 0
+	if len(cles) == pow(2, hauteur)-1 {
+		numNodes = pow(2, hauteur-1)
+	} else {
+		numNodes = len(cles) - (pow(2, hauteur-1) - 1)
+	}
+	bound := len(cles) - numNodes
+	nodesClesEnf := cles[bound:]
+	nodesEnf := listCleToListArbre(nodesClesEnf)
+
+	for i := hauteur - 1; i > 0; i-- {
+		cles = cles[:len(cles)-numNodes]
+		numNodes = pow(2, i-1)
+		nodesCles := cles[len(cles)-numNodes:]
+		nodes := listCleToListArbre(nodesCles)
+		for j := 0; j < len(nodes); j++ {
+			k := j * 2
+			if k >= len(nodesEnf) {
+				break
+			}
+			if k != len(nodesEnf)-1 {
+				nodes[j].leftChild = &nodesEnf[k]
+				nodes[j].rightChild = &nodesEnf[k+1]
+
+				nodes[j].leftChild.parent = &nodes[j]
+				nodes[j].rightChild.parent = &nodes[j]
+
+				nodes[j].Size = 1 + nodes[j].leftChild.Size + nodes[j].rightChild.Size
+				nodes[j].height = 1 + max(nodes[j].leftChild.height, nodes[j].rightChild.height)
+			} else {
+				nodes[j].leftChild = &nodesEnf[k]
+				nodes[j].leftChild.parent = &nodes[j]
+
+				nodes[j].Size = 1 + nodesEnf[k].Size
+				nodes[j].height = 1 + nodesEnf[k].height
+			}
+			nodes[j].reOrganiser()
+		}
+		nodesEnf = nodes
+		nodesClesEnf = nodesCles
+	}
+	return nodesEnf[0]
+}
+func (t *Arbre) reOrganiser() {
+	smallest := &Arbre{}
+	if t.leftChild != nil && t.rightChild != nil {
+		if t.leftChild.cle.Inf(t.rightChild.cle) {
+			smallest = t.leftChild
+		} else {
+			smallest = t.rightChild
+		}
+	} else if t.leftChild != nil {
+		smallest = t.leftChild
+	} else {
 // AjoutIteratif ajoute de manière itérative une liste de clés à l'arbre.
 func (t *Arbre) AjoutIteratif(cles []cle.Cle) {
 	// Appeler la fonction pour gérer les signaux (à implémenter ailleurs dans votre code)
@@ -183,4 +246,12 @@ func pow(x int, y int) int {
 // String retourne une représentation en chaîne de caractères de l'arbre.
 func (t *Arbre) String() string {
 	return t._string(0) + "\n"
+}
+
+func listCleToListArbre(cles []cle.Cle) []Arbre {
+	arbres := []Arbre{}
+	for i := 0; i < len(cles); i++ {
+		arbres = append(arbres, NewArbre(cles[i]))
+	}
+	return arbres
 }
