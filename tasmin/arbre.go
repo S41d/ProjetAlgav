@@ -154,6 +154,55 @@ func ConstructionArbre(cles []cle.Cle) Arbre {
 	}
 	return nodesEnf[0]
 }
+
+func (t *Arbre) SupprMin() cle.Cle {
+	if t.Size == 1 {
+		return t.cle
+	}
+	deleted := t.cle
+
+	curr := t
+	for curr.Size != 1 {
+		curr.Size -= 1
+		if curr.rightChild != nil {
+			if curr.leftChild.height == curr.rightChild.height {
+				curr = curr.rightChild
+			} else {
+				// hauteur de leftChild >= hauteur de rightChild
+				curr = curr.leftChild
+			}
+		} else if curr.leftChild != nil {
+			curr = curr.leftChild
+		}
+	}
+	m := curr.cle
+	if curr.parent.leftChild == curr {
+		curr.parent.leftChild = nil
+		for {
+			curr.height -= 1
+			p := curr.parent
+			maxH := p.height
+			if p.leftChild != nil && p.leftChild.height > maxH {
+				// left est toujours plus grand que right
+				maxH = p.leftChild.height
+			}
+			if p.height == maxH {
+				break
+			}
+			curr = p
+		}
+	} else {
+		curr.parent.rightChild = nil
+	}
+	for curr.parent != nil {
+		curr = curr.parent
+	}
+	curr.cle = m
+	*t = *curr
+	t.reOrganiser()
+	return deleted
+}
+
 func (t *Arbre) reOrganiser() {
 	smallest := &Arbre{}
 	if t.leftChild != nil && t.rightChild != nil {
