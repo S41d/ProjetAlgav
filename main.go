@@ -5,9 +5,6 @@ import (
 	"os"
 	"projet/cle"
 	"strings"
-
-	"github.com/go-echarts/go-echarts/v2/charts"
-	"github.com/go-echarts/go-echarts/v2/opts"
 )
 
 func check(err error) {
@@ -49,46 +46,16 @@ func foreachJeu(fn func(string) int64) [8]int64 {
 	for nbJeu := 1; nbJeu <= 5; nbJeu++ {
 		jeu := jeuxDonnes(nbJeu)
 		for i := 0; i < 8; i++ {
-			times[i] = fn(jeu[i])
+			times[i] += fn(jeu[i])
 		}
+	}
+	for i := 0; i < 8; i++ {
+		times[i] /= 5
 	}
 	return times
 }
 
-func timesToBarData(times [8]int64) []opts.BarData {
-	items := make([]opts.BarData, 0)
-	for i := 0; i < 8; i++ {
-		items = append(items, opts.BarData{
-			Value:   times[i],
-			Tooltip: &opts.Tooltip{Show: true},
-		})
-	}
-	return items
-}
-
 func main() {
-	timesAjoutIteratif := foreachJeu(tabAjoutIteratif)
-	timesConstruction := foreachJeu(tabConstruction)
-
-	bar := charts.NewBar()
-	bar.SetGlobalOptions(
-		charts.WithTitleOpts(opts.Title{
-			Title:    "Tableau",
-			Subtitle: "Construction vs AjoutsIteratif",
-			Left:     "center",
-		}),
-		//charts.WithToolboxOpts(opts.Toolbox{Show: true}),
-		charts.WithLegendOpts(opts.Legend{Show: true, Right: "right"}),
-		charts.WithXAxisOpts(opts.XAxis{Name: "# itérations"}),
-		charts.WithYAxisOpts(opts.YAxis{Name: "temps(en µs)"}),
-	)
-	jeuTailles := []string{
-		"1000", "5000", "10000", "20000", "50000",
-		"80000", "120000", "200000",
-	}
-	bar.SetXAxis(jeuTailles).
-		AddSeries("Construction", timesToBarData(timesConstruction)).
-		AddSeries("AjoutIteratif", timesToBarData(timesAjoutIteratif))
-	f, _ := os.Create("tableau_construction.html")
-	check(bar.Render(f))
+	grapheConstructionTasMinTableau()
+	grapheConstructionTasMinArbre()
 }
