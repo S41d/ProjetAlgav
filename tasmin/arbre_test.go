@@ -251,6 +251,139 @@ func TestArbre_AjoutIteratif(t1 *testing.T) {
 	}
 }
 
+func TestArbre_Construction(t *testing.T) {
+	clesFull := []cle.Cle{
+		{P1: 0, P2: 6},
+		{P1: 0, P2: 2},
+		{P1: 0, P2: 5},
+	}
+	clesNonFull := []cle.Cle{
+		{P1: 0, P2: 2},
+		{P1: 0, P2: 6},
+		{P1: 0, P2: 5},
+		{P1: 0, P2: 4},
+	}
+
+	tests := []struct {
+		name string
+		args []cle.Cle
+		want Arbre
+	}{
+		{
+			name: "Create a full tree",
+			args: clesFull,
+			want: Arbre{
+				Size:   3,
+				height: 2,
+				cle:    cle.Cle{P1: 0, P2: 2},
+				leftChild: &Arbre{
+					Size:   1,
+					height: 1,
+					cle:    cle.Cle{P1: 0, P2: 6},
+				},
+				rightChild: &Arbre{
+					Size:   1,
+					height: 1,
+					cle:    cle.Cle{P1: 0, P2: 5},
+				},
+			},
+		},
+		{
+			name: "Create a non full tree",
+			args: clesNonFull,
+			want: Arbre{
+				Size:   4,
+				height: 3,
+				cle:    cle.Cle{P1: 0, P2: 2},
+				leftChild: &Arbre{
+					Size:   2,
+					height: 2,
+					cle:    cle.Cle{P1: 0, P2: 4},
+					leftChild: &Arbre{
+						Size:   1,
+						height: 1,
+						cle:    cle.Cle{P1: 0, P2: 6},
+					},
+				},
+				rightChild: &Arbre{
+					Size:   1,
+					height: 1,
+					cle:    cle.Cle{P1: 0, P2: 5},
+				},
+			},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t1 *testing.T) {
+			arbre := ConstructionArbre(test.args)
+			if arbre.cle != test.want.cle ||
+				arbre.Size != test.want.Size ||
+				arbre.height != test.want.height ||
+
+				arbre.leftChild.cle != test.want.leftChild.cle ||
+				arbre.leftChild.Size != test.want.leftChild.Size ||
+				arbre.leftChild.height != test.want.leftChild.height ||
+
+				arbre.rightChild.cle != test.want.rightChild.cle ||
+				arbre.rightChild.Size != test.want.rightChild.Size ||
+				arbre.rightChild.height != test.want.rightChild.height {
+				t1.Errorf("Constuction() = %v, want %v", arbre.String(), test.want.String())
+			}
+		})
+	}
+}
+
+func TestArbre_SupprMin(t *testing.T) {
+	arbreFull := Arbre{
+		Size:   3,
+		height: 2,
+		cle:    cle.Cle{P1: 0, P2: 2},
+		leftChild: &Arbre{
+			Size:   1,
+			height: 1,
+			cle:    cle.Cle{P1: 0, P2: 6},
+		},
+		rightChild: &Arbre{
+			Size:   1,
+			height: 1,
+			cle:    cle.Cle{P1: 0, P2: 5},
+		},
+	}
+	arbreFull.leftChild.parent = &arbreFull
+	arbreFull.rightChild.parent = &arbreFull
+
+	tests := []struct {
+		name  string
+		arbre Arbre
+		state Arbre
+		want  cle.Cle
+	}{
+		{
+			name:  "Extract Min from a full tree",
+			arbre: arbreFull,
+			state: Arbre{
+				Size:   2,
+				height: 2,
+				cle:    cle.Cle{P1: 0, P2: 5},
+				leftChild: &Arbre{
+					Size:   1,
+					height: 1,
+					cle:    cle.Cle{P1: 0, P2: 6},
+				},
+			},
+			want: cle.Cle{P1: 0, P2: 2},
+		},
+	}
+	t.Run(tests[0].name, func(t *testing.T) {
+		arbre := tests[0].arbre
+		deleted :=arbre.SupprMin()
+		if deleted != tests[0].want {
+			t.Errorf("SupprMin() = %v, got %v", deleted, tests[0].want)
+		}
+	})
+}
+
 func TestArbre_String(t1 *testing.T) {
 	type fields struct {
 		Size       int
