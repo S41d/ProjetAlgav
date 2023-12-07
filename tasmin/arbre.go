@@ -203,6 +203,29 @@ func (t *Arbre) SupprMin() cle.Cle {
 	return deleted
 }
 
+func (t *Arbre) Union(o *Arbre) Arbre {
+	cles := append(ClesOfArbre(t), ClesOfArbre(o)...)
+	fmt.Println(cles)
+	return ConstructionArbre(cles)
+}
+
+func ClesOfArbre(a *Arbre) []cle.Cle {
+	cles := make([]cle.Cle, a.Size)
+
+	var aux func(curr *Arbre, idx int)
+	aux = func(curr *Arbre, idx int) {
+		cles[idx] = curr.cle
+		if curr.leftChild != nil {
+			aux(curr.leftChild, (2*idx)+1)
+		}
+		if curr.rightChild != nil {
+			aux(curr.rightChild, (2*idx)+2)
+		}
+	}
+	aux(a, 0)
+	return cles
+}
+
 func (t *Arbre) reOrganiser() {
 	smallest := &Arbre{}
 	if t.leftChild != nil && t.rightChild != nil {
