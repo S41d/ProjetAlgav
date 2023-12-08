@@ -143,3 +143,14 @@ func HexToCle(hex string) Cle {
 	}
 	return c
 }
+
+func BytesToCle(bytes [16]byte) Cle {
+	c := Cle{}
+	for i := 0; i < 8; i++ {
+		c.P1 = (c.P1 << 8) | uint64(bytes[i])
+	}
+	for i := 8; i < 16; i++ {
+		c.P2 = (c.P1 << 8) | uint64(bytes[i])
+	}
+	return c
+}

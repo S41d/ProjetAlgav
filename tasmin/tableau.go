@@ -8,11 +8,12 @@ import (
 
 type Tableau []cle.Cle
 
+// Parent retourne l'indice du parent de l'élément situé à l'indice donné dans le tableau.
 func (*Tableau) Parent(i int) int {
 	return (i - 1) / 2
 }
 
-// Parent retourne l'indice du parent de l'élément situé à l'indice donné dans le tableau.
+// EnfGauche retourne l'indice du fils gauche de l'élément situé à l'indice donné dans le tableau.
 func (*Tableau) EnfGauche(i int) int {
 	return 2*i + 1
 }

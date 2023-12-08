@@ -68,9 +68,9 @@ func I(x, y, z uint32) uint32 {
 	return y ^ (x | (^z))
 }
 
-// md5New est une fonction qui calcule le hachage MD5 d'un message donné.
+// Md5New est une fonction qui calcule le hachage MD5 d'un message donné.
 // Le résultat est renvoyé sous la forme d'un tableau de 16 octets.
-func md5New(message []byte) [16]byte {
+func Md5New(message []byte) [16]byte {
 	// Initialiser le tableau k avec les valeurs dérivées des sinus d'entiers.
 	initializeK()
 

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"projet/cle"
+	"projet/experimentation"
 	"strings"
 )
 
@@ -56,6 +57,9 @@ func foreachJeu(fn func(string) int64) [8]int64 {
 }
 
 func main() {
-	grapheConstructionTasMinTableau()
-	grapheConstructionTasMinArbre()
+	// grapheConstructionTasMinTableau()
+	// grapheConstructionTasMinArbre()
+	md5Hashes, words := experimentation.ParseBooks()
+	collisions := experimentation.CollisionMd5(md5Hashes, words)
+	fmt.Println(collisions)
 }

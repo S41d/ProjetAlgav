@@ -16,7 +16,9 @@ type ArbreRecherche struct {
 // Si la clé est inférieure à la clé du nœud actuel, la recherche continue dans le sous-arbre gauche.
 // Sinon, la recherche continue dans le sous-arbre droit.
 func (a *ArbreRecherche) Contient(c cle.Cle) bool {
-	if c.Eg(*a.Elt) {
+	if a == nil || a.Elt == nil {
+		return false
+	} else if c.Eg(*a.Elt) {
 		return true
 	} else if c.Inf(*a.Elt) {
 		return a.SaGauche.Contient(c)
@@ -35,10 +37,18 @@ func (a *ArbreRecherche) Ajout(c cle.Cle) {
 		return
 	} else if c.Inf(*a.Elt) {
 		// La clé est inférieure à la clé du nœud actuel, l'insertion continue dans le sous-arbre gauche.
-		a.SaGauche.Ajout(c)
+		if a.SaGauche == nil {
+			a.SaGauche = &ArbreRecherche{Elt: &c}
+		} else {
+			a.SaGauche.Ajout(c)
+		}
 	} else {
 		// La clé est supérieure à la clé du nœud actuel, l'insertion continue dans le sous-arbre droit.
-		a.SaDroit.Ajout(c)
+		if a.SaDroit == nil {
+			a.SaDroit = &ArbreRecherche{Elt: &c}
+		} else {
+			a.SaDroit.Ajout(c)
+		}
 	}
 }
 
