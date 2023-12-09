@@ -39,3 +39,31 @@ func arbreConstruction(file string) int64 {
 		tasmin.ConstructionArbre(cles)
 	})
 }
+
+func tabUnion(file1, file2 string) int64 {
+	cles1 := parseFile(file1)
+	cles2 := parseFile(file2)
+
+	tab1 := tasmin.Construction(cles1)
+	tab2 := tasmin.Construction(cles2)
+
+	tStart := time.Now().UnixMicro()
+	tab1.Union(tab2)
+	tEnd := time.Now().UnixMicro()
+
+	return tEnd - tStart
+}
+
+func arbreUnion(file1, file2 string) int64 {
+	cles1 := parseFile(file1)
+	cles2 := parseFile(file2)
+
+	arbre1 := tasmin.ConstructionArbre(cles1)
+	arbre2 := tasmin.ConstructionArbre(cles2)
+
+	tStart := time.Now().UnixMicro()
+	arbre1.Union(&arbre2)
+	tEnd := time.Now().UnixMicro()
+
+	return tEnd - tStart
+}
