@@ -67,7 +67,7 @@ func (c Cle) HexaString() string {
 func (c Cle) BinaryString() string {
 	// Utiliser le format %b pour la première partie de la clé.
 	// Utiliser %064b pour la deuxième partie avec un remplissage de zéros à gauche pour atteindre une longueur de 64 bits.
-	return fmt.Sprintf("%b%064b\n", c.P1, c.P2)
+	return fmt.Sprintf("%064b%064b\n", c.P1, c.P2)
 }
 
 // DecimalString retourne une représentation décimale de la clé sous la forme d'une chaîne de caractères.

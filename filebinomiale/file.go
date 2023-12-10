@@ -6,32 +6,32 @@ type FileBinomiale []TournoiBinomial
 
 // EstVide retourne true si la file binomiale est vide, c'est-à-dire si elle ne contient aucun nœud de tournoi binomial.
 // Sinon, elle retourne false.
-func (fb FileBinomiale) EstVide() bool {
+func (fb *FileBinomiale) EstVide() bool {
 	// Vérifie si la longueur de la file binomiale est égale à zéro.
-	return len(fb) == 0
+	return len(*fb) == 0
 }
 
 // MinDeg renvoie le nœud de tournoi binomial avec le degré minimum dans la file binomiale.
-func (fb FileBinomiale) MinDeg() TournoiBinomial {
+func (fb *FileBinomiale) MinDeg() TournoiBinomial {
 	// La file binomiale est supposée être non vide, sinon cette méthode pourrait entraîner un comportement indéfini.
 	// Dans un scénario de production, on devrait probablement ajouter des vérifications supplémentaires.
 
 	// Renvoie le premier nœud de la file binomiale, qui a le degré minimum.
-	return fb[0]
+	return (*fb)[0]
 }
 
 // Reste renvoie une nouvelle file binomiale contenant tous les éléments à l'exception du premier.
-func (fb FileBinomiale) Reste() FileBinomiale {
+func (fb *FileBinomiale) Reste() FileBinomiale {
 	// La file binomiale est supposée être non vide, sinon cette méthode pourrait entraîner un comportement indéfini.
 	// Dans un scénario de production, on devrait probablement ajouter des vérifications supplémentaires.
 
 	// Renvoie une nouvelle file binomiale contenant tous les éléments à partir du deuxième.
-	return fb[1:]
+	return (*fb)[1:]
 }
 
 // AjoutMin ajoute un nœud de tournoi binomial avec un degré inférieur au degré du premier nœud de la file binomiale.
 // Elle renvoie une nouvelle file binomiale résultant de cet ajout.
-func (fb FileBinomiale) AjoutMin(tb TournoiBinomial) FileBinomiale {
+func (fb *FileBinomiale) AjoutMin(tb TournoiBinomial) FileBinomiale {
 	// Vérifie que le degré du tournoi est inférieur au degré du premier nœud de la file.
 	assert(tb.Degre < fb.MinDeg().Degre, "le degre de tournoi n'est pas inférieur à MinDeg de la file")
 
@@ -39,7 +39,7 @@ func (fb FileBinomiale) AjoutMin(tb TournoiBinomial) FileBinomiale {
 	newFb := FileBinomiale{tb}
 
 	// Ajoute tous les éléments de la file binomiale originale après le nouveau nœud.
-	newFb = append(newFb, fb...)
+	newFb = append(newFb, (*fb)...)
 
 	// Renvoie la nouvelle file binomiale résultant de cet ajout.
 	return newFb
@@ -47,16 +47,16 @@ func (fb FileBinomiale) AjoutMin(tb TournoiBinomial) FileBinomiale {
 
 // Union réalise l'opération d'union entre deux files binomiales.
 // Elle prend une autre file binomiale en argument et renvoie une nouvelle file binomiale résultant de l'union.
-func (fb FileBinomiale) Union(o FileBinomiale) FileBinomiale {
+func (fb *FileBinomiale) Union(o FileBinomiale) FileBinomiale {
 	// Utilise une fonction auxiliaire uFret pour effectuer l'union.
 	// La TournoiBinomial{} est utilisée comme nœud sentinel pour l'union initiale.
-	return uFret(fb, o, TournoiBinomial{})
+	return uFret(*fb, o, TournoiBinomial{})
 }
 
 // Ajout ajoute une nouvelle clé à la file binomiale.
 // Elle crée une nouvelle file binomiale contenant un tournoi binomial avec la clé à ajouter,
 // puis elle effectue l'union de cette nouvelle file avec la file binomiale existante.
-func (fb FileBinomiale) Ajout(c cle.Cle) FileBinomiale {
+func (fb *FileBinomiale) Ajout(c cle.Cle) FileBinomiale {
 	// Crée une nouvelle file binomiale contenant un tournoi binomial avec la clé à ajouter.
 	toAdd := FileBinomiale{TournoiBinomial{Cle: &c}}
 
@@ -66,16 +66,16 @@ func (fb FileBinomiale) Ajout(c cle.Cle) FileBinomiale {
 
 // SupprMin supprime le nœud avec la clé minimale de la file binomiale.
 // Elle retourne une nouvelle file binomiale résultant de cette opération.
-func (fb FileBinomiale) SupprMin() FileBinomiale {
+func (fb *FileBinomiale) SupprMin() FileBinomiale {
 	// Assure que la file binomiale n'est pas vide avant de supprimer le minimum.
 	assert(!fb.EstVide(), "SupprMin sur file vide")
 
 	// Initialise le nœud minimal avec le premier élément de la file.
-	minimal := &fb[0]
+	minimal := &(*fb)[0]
 
 	// Parcours les éléments de la file pour trouver le nœud avec la clé minimale.
-	for i := 1; i < len(fb); i++ {
-		curr := &fb[i]
+	for i := 1; i < len(*fb); i++ {
+		curr := &(*fb)[i]
 		if minimal.Cle.Inf(*curr.Cle) {
 			minimal = curr
 		}
@@ -96,7 +96,7 @@ func Construction(cles []cle.Cle) FileBinomiale {
 
 	// Ajoute chaque clé à la file binomiale.
 	for i := 0; i < len(cles); i++ {
-		fb.Ajout(cles[i])
+		fb = fb.Ajout(cles[i])
 	}
 
 	// Renvoie la file binomiale résultante.
@@ -123,10 +123,12 @@ func uFret(f1, f2 FileBinomiale, t TournoiBinomial) FileBinomiale {
 
 		// Compare les degrés et effectue l'union en conséquence.
 		if t1.Degre < t2.Degre {
-			return f2.Union(f1.Reste()).AjoutMin(t1)
+			union := f2.Union(f1.Reste())
+			return union.AjoutMin(t1)
 		}
 		if t2.Degre < t1.Degre {
-			return f1.Union(f2.Reste()).AjoutMin(t2)
+			union := f1.Union(f2.Reste())
+			return union.AjoutMin(t2)
 		}
 		if t1.Degre == t2.Degre {
 			return uFret(f1.Reste(), f2.Reste(), t1.Union(t2))
@@ -146,10 +148,12 @@ func uFret(f1, f2 FileBinomiale, t TournoiBinomial) FileBinomiale {
 
 		// Compare les degrés et effectue l'union en conséquence.
 		if t.Degre < t1.Degre && t.Degre < t2.Degre {
-			return f1.Union(f2).AjoutMin(t)
+			union := f1.Union(f2)
+			return union.AjoutMin(t)
 		}
-		if t.Degre == t1.Degre && t.Degre == t2.Degre {
-			return uFret(f1.Reste(), f2.Reste(), t1.Union(t2)).AjoutMin(t)
+		if t.Degre == t1.Degre && t1.Degre == t2.Degre {
+			tmp := uFret(f1.Reste(), f2.Reste(), t1.Union(t2))
+			return tmp.AjoutMin(t)
 		}
 		if t.Degre == t1.Degre && t.Degre < t2.Degre {
 			return uFret(f1.Reste(), f2, t1.Union(t))

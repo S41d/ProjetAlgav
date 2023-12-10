@@ -1,7 +1,6 @@
 package tasmin
 
 import (
-	"errors"
 	"projet/cle"
 	"strings"
 )
@@ -24,26 +23,24 @@ func (*Tableau) EnfDroit(i int) int {
 }
 
 // SupprMin supprime et retourne la clé minimale du tableau, qui doit être un tas.
-func (t *Tableau) SupprMin() (cle.Cle, error) {
+func (t *Tableau) SupprMin() cle.Cle {
 	// Vérifier si le tableau est vide.
-	if len(*t) == 0 {
-		// Si le tableau est vide, retourner une clé nulle et une erreur.
-		return cle.Cle{}, errors.New("SupprMin sur tas vide")
+	if len(*t) < 1 {
+		panic("SupprMin appelé sur tableau vide")
 	}
-
 	// Sauvegarder la clé à supprimer (la clé minimale dans un tas).
 	cleSupprime := (*t)[0]
 
 	// Remplacer la clé à l'indice 0 par la dernière clé dans le tableau.
 	(*t)[0] = (*t)[len(*t)-1]
 	// Supprimer le dernier élément
-	*t = (*t)[1:]
+	*t = (*t)[:len(*t)-1]
 
 	// Appeler la méthode de tri pour maintenir la propriété du tas.
-	t.trier(0)
+	(*t).trier(0)
 
 	// Retourner la clé supprimée avec succès et aucune erreur.
-	return cleSupprime, nil
+	return cleSupprime
 }
 
 // Ajout ajoute une nouvelle clé au tableau, qui doit être un tas, et réorganise le tableau
@@ -91,10 +88,10 @@ func Construction(cles []cle.Cle) Tableau {
 
 	// Trouver l'indice du dernier nœud ayant des enfants dans le tableau.
 	// Cela permet de commencer la construction du tas à partir du bas.
-	start := (len(cles) / 2) - 1
+	//start := (len(cles) / 2) - 1
 
 	// Itérer à partir du dernier nœud avec des enfants jusqu'au premier nœud du tableau.
-	for i := start; i >= 0; i-- {
+	for i := len(t) - 1; i >= 0; i-- {
 		// Appeler la méthode de tri pour réorganiser le tableau et maintenir la propriété du tas.
 		t.trier(i)
 	}
@@ -142,7 +139,7 @@ func (t *Tableau) trier(index int) {
 		(*t)[index], (*t)[minimum] = (*t)[minimum], (*t)[index]
 
 		// Appeler récursivement la méthode trier sur le nouveau indice du minimum.
-		t.trier(minimum)
+		(*t).trier(minimum)
 	}
 }
 

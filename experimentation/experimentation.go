@@ -9,10 +9,11 @@ import (
 	"projet/cle"
 	"projet/md5"
 	"reflect"
+	"slices"
 	"strings"
 )
 
-func ParseBooks() (abr.ArbreRecherche, []string) {
+func ParseBooksABR() (abr.ArbreRecherche, []string) {
 	fileEntries, err := os.ReadDir("./Shakespeare")
 	if err != nil {
 		log.Fatal(err)
@@ -42,7 +43,37 @@ func ParseBooks() (abr.ArbreRecherche, []string) {
 	return md5Tree, words
 }
 
-func CollisionMd5(tree abr.ArbreRecherche, words []string) [][]string {
+func ParseBooks() [][]cle.Cle {
+	fileEntries, err := os.ReadDir("./Shakespeare")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	var cles [][]cle.Cle
+
+	for _, file := range fileEntries {
+		fileContent, err := os.ReadFile("Shakespeare" + string(os.PathSeparator) + file.Name())
+		if err != nil {
+			log.Fatal(err)
+		}
+		words := strings.Split(string(fileContent), "\n")
+
+		var currCles []cle.Cle
+		for _, word := range words {
+			md5Hash := md5.Md5New([]byte(word))
+			c := cle.BytesToCle(md5Hash)
+			if !slices.Contains(currCles, c) {
+				currCles = append(currCles, c)
+			}
+		}
+
+		cles = append(cles, currCles)
+	}
+
+	return cles
+}
+
+func CollisionMd5(words []string) [][]string {
 	var motsEnCollision [][]string
 
 	for i := 0; i < len(words); i++ {

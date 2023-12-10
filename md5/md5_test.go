@@ -166,7 +166,7 @@ func Test_md5(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := md5New(tt.args.message); !reflect.DeepEqual(got, tt.want) {
+			if got := Md5New(tt.args.message); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("md5New() = %v, want %v", got, tt.want)
 			}
 		})

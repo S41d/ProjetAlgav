@@ -205,7 +205,6 @@ func (t *Arbre) SupprMin() cle.Cle {
 
 func (t *Arbre) Union(o *Arbre) Arbre {
 	cles := append(ClesOfArbre(t), ClesOfArbre(o)...)
-	fmt.Println(cles)
 	return ConstructionArbre(cles)
 }
 

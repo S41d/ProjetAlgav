@@ -228,21 +228,10 @@ func TestTableau_SupprMin(t *testing.T) {
 			wantErr: false,
 			wantTab: Tableau{cle.Cle{P1: 1, P2: 5}, cle.Cle{P1: 1, P2: 6}},
 		},
-		{
-			name:    "Cas du tableau vide",
-			t:       Tableau{},
-			want:    cle.Cle{},
-			wantErr: true,
-			wantTab: Tableau{},
-		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := tt.t.SupprMin()
-			if (err != nil) != tt.wantErr {
-				t.Errorf("SupprMin() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
+			got := tt.t.SupprMin()
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("SupprMin() got = %v, want %v", got, tt.want)
 			}
