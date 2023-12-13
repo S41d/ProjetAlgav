@@ -147,10 +147,10 @@ func HexToCle(hex string) Cle {
 func BytesToCle(bytes [16]byte) Cle {
 	c := Cle{}
 	for i := 0; i < 8; i++ {
-		c.P1 = (c.P1 << 8) | uint64(bytes[i])
+		c.P1 = (c.P1 << 8) | uint64(bytes[i]&0xff)
 	}
 	for i := 8; i < 16; i++ {
-		c.P2 = (c.P1 << 8) | uint64(bytes[i])
+		c.P2 = (c.P2 << 8) | uint64(bytes[i]&0xff)
 	}
 	return c
 }

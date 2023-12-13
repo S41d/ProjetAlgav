@@ -32,10 +32,15 @@ func (tb TournoiBinomial) Union(o TournoiBinomial) TournoiBinomial {
 	assert(tb.Degre == o.Degre, "degre inégal")
 
 	// Ajoute le nœud en argument à la liste des enfants du nœud actuel.
-	tb.Enfants = append(tb.Enfants, o)
-
-	// Retourne le nœud résultant après l'union.
-	return tb
+	if o.Cle.Inf(*tb.Cle) {
+		o.Enfants = append(o.Enfants, tb)
+		o.Degre += 1
+		return o
+	} else {
+		tb.Enfants = append(tb.Enfants, o)
+		tb.Degre += 1
+		return tb
+	}
 }
 
 // Decapite réalise l'opération de décapitation sur le nœud du tournoi binomial.

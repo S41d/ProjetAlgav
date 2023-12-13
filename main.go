@@ -2,6 +2,8 @@ package main
 
 func main() {
 	grapheExempleTasMinTableau()
+	grapheExempleFileUnion()
+	grapheExempleSupprMinFile()
 	grapheConstructionTasMinTableau()
 	grapheConstructionTasMinArbre()
 	grapheUnionTasMin()

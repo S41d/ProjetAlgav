@@ -2,8 +2,10 @@ package main
 
 import (
 	"fmt"
+	"github.com/sajari/regression"
 	"os"
 	"projet/cle"
+	"projet/filebinomiale"
 	"projet/tasmin"
 	"strings"
 
@@ -128,6 +130,7 @@ func grapheConstructionTasMinTableau() {
 	page.AddCharts(
 		lineChart,
 	)
+	page.PageTitle = "Tas Min (Tableau) - Construction"
 
 	page.SetLayout(components.PageCenterLayout)
 	f, _ := os.Create("graphes/construction_tas_min(tableau).html")
@@ -168,7 +171,6 @@ func grapheConstructionTasMinArbre() {
 		charts.WithTooltipOpts(opts.Tooltip{Show: true, Trigger: "axis"}),
 	)
 
-	//lineChart.SetXAxis(jeuTailles).
 	lineChart.
 		AddSeries(
 			"Construction",
@@ -189,6 +191,7 @@ func grapheConstructionTasMinArbre() {
 		lineChart,
 	)
 
+	page.PageTitle = "Tas Min (Arbre) - Construction"
 	page.SetLayout(components.PageCenterLayout)
 	f, err := os.Create("graphes/construction_tas_min(arbre).html")
 	if err != nil {
@@ -256,6 +259,22 @@ func tabminToGraphNode(index int, tab tasmin.Tableau) opts.TreeData {
 	return node
 }
 
+func fileToTreeNode(file filebinomiale.FileBinomiale) []*opts.TreeData {
+	var children []*opts.TreeData
+	if !file.EstVide() {
+		for i := 0; i < len(file); i++ {
+			children2 := fileToTreeNode(file[i].Enfants)
+			children = append(children, &opts.TreeData{
+				Name:       file[i].Cle.DecimalString(),
+				Children:   children2,
+				Symbol:     "roundRect",
+				SymbolSize: 25,
+			})
+		}
+	}
+	return children
+}
+
 func grapheExempleTasMinTableau() {
 	cles := []cle.Cle{
 		cle.HexToCle("1f"),
@@ -320,6 +339,7 @@ func grapheExempleTasMinTableau() {
 	page.AddCharts(
 		treeChart,
 	)
+	page.PageTitle = "Visu Tas min"
 
 	page.SetLayout(components.PageCenterLayout)
 	f, _ := os.Create("graphes/tas_min_visualization.html")
@@ -391,41 +411,58 @@ func grapheMd5Construction() {
 	timesTas, timesFile := md5Construction()
 	m := minTimeS(timesFile, timesTas)
 
+	regTas := createRegressionInstance(timesTas)
+	regFile := createRegressionInstance(timesFile)
+
 	scatterChart := charts.NewScatter()
 	scatterChart.SetGlobalOptions(
-		charts.WithInitializationOpts(opts.Initialization{
-			Height: "800px",
-		}),
-		charts.WithTitleOpts(opts.Title{
-			Title:    "Experimentation",
-			Subtitle: "Construction",
-			Left:     "center",
-		}),
+		charts.WithInitializationOpts(opts.Initialization{Height: "800px"}),
+		charts.WithTitleOpts(opts.Title{Title: "Md5 Construction"}),
 		charts.WithXAxisOpts(opts.XAxis{Name: "taille des tas", Min: m}),
 		charts.WithYAxisOpts(opts.YAxis{Name: "temps(en µs)"}),
-		charts.WithLegendOpts(opts.Legend{Show: true, Right: "right"}),
+		charts.WithLegendOpts(opts.Legend{Show: true}),
 		charts.WithTooltipOpts(opts.Tooltip{Show: true, Trigger: "axis"}),
+		charts.WithDataZoomOpts(opts.DataZoom{Type: "inside"}),
 	)
+
+	regTasPoints := regressionPoints(regTas, timesTas)
+	regFilePoints := regressionPoints(regFile, timesFile)
 
 	scatterChart.
 		AddSeries(
-			"Tas (tableau)",
+			"Regression Tas",
+			[]opts.ScatterData{},
+			func(s *charts.SingleSeries) {
+				s.Type = "line"
+				s.Animation = true
+				s.Data = regTasPoints
+			},
+		).
+		AddSeries(
+			"Tas (Tableau)",
 			timesToScatterDataSlice(timesTas),
 			charts.WithSeriesAnimation(true),
+		).
+		AddSeries(
+			"Regression File",
+			[]opts.ScatterData{},
+			func(s *charts.SingleSeries) {
+				s.Type = "line"
+				s.Animation = true
+				s.Data = regFilePoints
+			},
 		).
 		AddSeries(
 			"File Binomiale",
 			timesToScatterDataSlice(timesFile),
 			charts.WithSeriesAnimation(true),
-		).
-		SetSeriesOptions(charts.WithScatterChartOpts(
-			opts.ScatterChart{},
-		))
+		)
 
 	page := components.NewPage()
 	page.AddCharts(
 		scatterChart,
 	)
+	page.PageTitle = "MD5 Construction"
 
 	page.SetLayout(components.PageCenterLayout)
 	f, err := os.Create("graphes/md5_construction.html")
@@ -439,27 +476,45 @@ func grapheMd5SupprMin() {
 	timesTas, timesFile := md5SupprMin()
 	m := minTimeS(timesFile, timesTas)
 
+	regTas := createRegressionInstance(timesTas)
+	regFile := createRegressionInstance(timesFile)
+	regTasPoints := regressionPoints(regTas, timesTas)
+	regFilePoints := regressionPoints(regFile, timesFile)
+
 	scatterChart := charts.NewScatter()
 	scatterChart.SetGlobalOptions(
-		charts.WithInitializationOpts(opts.Initialization{
-			Height: "800px",
-		}),
-		charts.WithTitleOpts(opts.Title{
-			Title:    "Experimentation",
-			Subtitle: "SupprMin",
-			Left:     "center",
-		}),
+		charts.WithInitializationOpts(opts.Initialization{Height: "800px"}),
+		charts.WithTitleOpts(opts.Title{Title: "MD5 SupprMin"}),
 		charts.WithXAxisOpts(opts.XAxis{Name: "taille des tas", Min: m}),
 		charts.WithYAxisOpts(opts.YAxis{Name: "temps(en µs)"}),
-		charts.WithLegendOpts(opts.Legend{Show: true, Right: "right"}),
+		charts.WithLegendOpts(opts.Legend{Show: true}),
 		charts.WithTooltipOpts(opts.Tooltip{Show: true, Trigger: "axis"}),
+		charts.WithDataZoomOpts(opts.DataZoom{Type: "inside"}),
 	)
 
 	scatterChart.
 		AddSeries(
+			"Regression Tas",
+			[]opts.ScatterData{},
+			func(s *charts.SingleSeries) {
+				s.Type = "line"
+				s.Animation = true
+				s.Data = regTasPoints
+			},
+		).
+		AddSeries(
 			"Tas (Tableau)",
 			timesToScatterDataSlice(timesTas),
 			charts.WithSeriesAnimation(true),
+		).
+		AddSeries(
+			"Regression File",
+			[]opts.ScatterData{},
+			func(s *charts.SingleSeries) {
+				s.Type = "line"
+				s.Animation = true
+				s.Data = regFilePoints
+			},
 		).
 		AddSeries(
 			"File Binomiale",
@@ -474,6 +529,7 @@ func grapheMd5SupprMin() {
 	page.AddCharts(
 		scatterChart,
 	)
+	page.PageTitle = "MD5 SupprMin"
 
 	page.SetLayout(components.PageCenterLayout)
 	f, err := os.Create("graphes/md5_suppr_min.html")
@@ -487,27 +543,45 @@ func grapheMd5Ajout() {
 	timesTas, timesFile := md5Ajout()
 	m := minTimeS(timesFile, timesTas)
 
+	regTas := createRegressionInstance(timesTas)
+	regFile := createRegressionInstance(timesFile)
+	regTasPoints := regressionPoints(regTas, timesTas)
+	regFilePoints := regressionPoints(regFile, timesFile)
+
 	scatterChart := charts.NewScatter()
 	scatterChart.SetGlobalOptions(
-		charts.WithInitializationOpts(opts.Initialization{
-			Height: "800px",
-		}),
-		charts.WithTitleOpts(opts.Title{
-			Title:    "Experimentation",
-			Subtitle: "Ajout",
-			Left:     "center",
-		}),
+		charts.WithInitializationOpts(opts.Initialization{Height: "800px"}),
+		charts.WithTitleOpts(opts.Title{Title: "MD5 Ajout"}),
 		charts.WithXAxisOpts(opts.XAxis{Name: "taille des tas", Min: m}),
 		charts.WithYAxisOpts(opts.YAxis{Name: "temps(en µs)"}),
-		charts.WithLegendOpts(opts.Legend{Show: true, Right: "right"}),
+		charts.WithLegendOpts(opts.Legend{Show: true}),
 		charts.WithTooltipOpts(opts.Tooltip{Show: true, Trigger: "axis"}),
+		charts.WithDataZoomOpts(opts.DataZoom{Type: "inside"}),
 	)
 
 	scatterChart.
 		AddSeries(
+			"Regression Tas",
+			[]opts.ScatterData{},
+			func(s *charts.SingleSeries) {
+				s.Type = "line"
+				// s.Animation = true
+				s.Data = regTasPoints
+			},
+		).
+		AddSeries(
 			"Tas (Tableau)",
 			timesToScatterDataSlice(timesTas),
 			charts.WithSeriesAnimation(true),
+		).
+		AddSeries(
+			"Regression File",
+			[]opts.ScatterData{},
+			func(s *charts.SingleSeries) {
+				s.Type = "line"
+				// s.Animation = true
+				s.Data = regFilePoints
+			},
 		).
 		AddSeries(
 			"File Binomiale",
@@ -522,6 +596,7 @@ func grapheMd5Ajout() {
 	page.AddCharts(
 		scatterChart,
 	)
+	page.PageTitle = "MD5 Ajout"
 
 	page.SetLayout(components.PageCenterLayout)
 	f, err := os.Create("graphes/md5_ajout.html")
@@ -535,27 +610,45 @@ func grapheMd5Union() {
 	timesTas, timesFile := md5Union()
 	m := minTimeS(timesFile, timesTas)
 
+	regTas := createRegressionInstance(timesTas)
+	regFile := createRegressionInstance(timesFile)
+	regTasPoints := regressionPoints(regTas, timesTas)
+	regFilePoints := regressionPoints(regFile, timesFile)
+
 	scatterChart := charts.NewScatter()
 	scatterChart.SetGlobalOptions(
-		charts.WithInitializationOpts(opts.Initialization{
-			Height: "800px",
-		}),
-		charts.WithTitleOpts(opts.Title{
-			Title:    "Experimentation",
-			Subtitle: "Union",
-			Left:     "center",
-		}),
+		charts.WithInitializationOpts(opts.Initialization{Height: "800px"}),
+		charts.WithTitleOpts(opts.Title{Title: "MD5 Union"}),
 		charts.WithXAxisOpts(opts.XAxis{Name: "taille des tas", Min: m}),
 		charts.WithYAxisOpts(opts.YAxis{Name: "temps(en µs)"}),
-		charts.WithLegendOpts(opts.Legend{Show: true, Right: "right"}),
+		charts.WithLegendOpts(opts.Legend{Show: true}),
 		charts.WithTooltipOpts(opts.Tooltip{Show: true, Trigger: "axis"}),
+		charts.WithDataZoomOpts(opts.DataZoom{Type: "inside"}),
 	)
 
 	scatterChart.
 		AddSeries(
+			"Regression Tas",
+			[]opts.ScatterData{},
+			func(s *charts.SingleSeries) {
+				s.Type = "line"
+				s.Animation = true
+				s.Data = regTasPoints
+			},
+		).
+		AddSeries(
 			"Tas (Tableau)",
 			timesToScatterDataSlice(timesTas),
 			charts.WithSeriesAnimation(true),
+		).
+		AddSeries(
+			"Regression File",
+			[]opts.ScatterData{},
+			func(s *charts.SingleSeries) {
+				s.Type = "line"
+				s.Animation = true
+				s.Data = regFilePoints
+			},
 		).
 		AddSeries(
 			"File Binomiale",
@@ -570,6 +663,7 @@ func grapheMd5Union() {
 	page.AddCharts(
 		scatterChart,
 	)
+	page.PageTitle = "MD5 Union"
 
 	page.SetLayout(components.PageCenterLayout)
 	f, err := os.Create("graphes/md5_union.html")
@@ -590,4 +684,138 @@ func minTimeS(times1, times2 []timeS) int {
 		}
 	}
 	return minTime
+}
+
+func createRegressionInstance(times []timeS) *regression.Regression {
+	reg := new(regression.Regression)
+	for i := 0; i < len(times); i++ {
+		reg.Train(
+			regression.DataPoint(float64(times[i].time), []float64{float64(times[i].size)}),
+		)
+	}
+	check(reg.Run())
+	return reg
+}
+
+func regressionPoints(reg *regression.Regression, times []timeS) [][]interface{} {
+	var points [][]interface{}
+	for _, t := range times {
+		predictionTas, _ := reg.Predict([]float64{float64(t.size)})
+		points = append(points, []interface{}{t.size, predictionTas})
+	}
+	return points
+}
+
+func createFileTreeChart(file filebinomiale.FileBinomiale) *charts.Tree {
+	var data opts.TreeData
+	data.Name = ""
+	data.Children = fileToTreeNode(file)
+
+	treeChart := charts.NewTree()
+	treeChart.SetGlobalOptions(
+		charts.WithInitializationOpts(opts.Initialization{
+			Height: "800px",
+		}),
+		charts.WithTitleOpts(opts.Title{
+			Title: "File binomiale",
+			Left:  "center",
+		}),
+		charts.WithTooltipOpts(opts.Tooltip{Show: true}),
+		charts.WithLegendOpts(opts.Legend{Show: false}),
+	)
+	treeChart.AddSeries("tas", []opts.TreeData{data}).SetSeriesOptions(
+		charts.WithTreeOpts(
+			opts.TreeChart{
+				Layout:           "orthogonal",
+				Orient:           "TB",
+				InitialTreeDepth: -1,
+			},
+		),
+		charts.WithSeriesAnimation(true),
+	)
+	return treeChart
+}
+
+func grapheExempleSupprMinFile() {
+	cles := []cle.Cle{
+		// cle.HexToCle("1f"),
+		// cle.HexToCle("1e"),
+		// cle.HexToCle("1d"),
+		// cle.HexToCle("1c"),
+		// cle.HexToCle("1b"),
+		// cle.HexToCle("1a"),
+		// cle.HexToCle("19"),
+		// cle.HexToCle("18"),
+		// cle.HexToCle("17"),
+		// cle.HexToCle("16"),
+		// cle.HexToCle("15"),
+		// cle.HexToCle("14"),
+		// cle.HexToCle("13"),
+		// cle.HexToCle("12"),
+		// cle.HexToCle("11"),
+		// cle.HexToCle("10"),
+		// cle.HexToCle("f"),
+		// cle.HexToCle("e"),
+		// cle.HexToCle("d"),
+		// cle.HexToCle("c"),
+		// cle.HexToCle("b"),
+		cle.HexToCle("a"),
+		cle.HexToCle("9"),
+		cle.HexToCle("8"),
+		cle.HexToCle("7"),
+		cle.HexToCle("6"),
+		cle.HexToCle("5"),
+		cle.HexToCle("4"),
+		cle.HexToCle("3"),
+		cle.HexToCle("2"),
+		cle.HexToCle("1"),
+	}
+	fb := filebinomiale.Construction(cles)
+	var charters []components.Charter
+
+	for i := 0; i < 10; i++ {
+		charters = append(charters, createFileTreeChart(fb))
+		fb = fb.SupprMin()
+	}
+
+	page := components.NewPage()
+	page.AddCharts(charters...)
+
+	page.SetLayout(components.PageCenterLayout)
+	f, _ := os.Create("graphes/file_visualization.html")
+	check(page.Render(f))
+}
+
+func grapheExempleFileUnion() {
+	cles1 := []cle.Cle{
+		cle.HexToCle("5"),
+		cle.HexToCle("4"),
+		cle.HexToCle("3"),
+		cle.HexToCle("2"),
+		cle.HexToCle("1"),
+	}
+
+	cles2 := []cle.Cle{
+		cle.HexToCle("a"),
+		cle.HexToCle("9"),
+		cle.HexToCle("8"),
+		cle.HexToCle("7"),
+		cle.HexToCle("6"),
+	}
+
+	fb1 := filebinomiale.Construction(cles1)
+	chart1 := createFileTreeChart(fb1)
+	fb2 := filebinomiale.Construction(cles2)
+	chart2 := createFileTreeChart(fb2)
+
+	union := fb1.Union(fb2)
+	chart3 := createFileTreeChart(union)
+
+	page := components.NewPage()
+	page.AddCharts(chart1, chart2, chart3)
+	page.PageTitle = "Exemple file union"
+
+	page.SetLayout(components.PageCenterLayout)
+	f, _ := os.Create("graphes/file_exemple_union_visualization.html")
+	check(page.Render(f))
 }

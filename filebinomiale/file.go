@@ -1,6 +1,10 @@
 package filebinomiale
 
-import "projet/cle"
+import (
+	"math"
+	"projet/cle"
+	"slices"
+)
 
 type FileBinomiale []TournoiBinomial
 
@@ -29,6 +33,14 @@ func (fb *FileBinomiale) Reste() FileBinomiale {
 	return (*fb)[1:]
 }
 
+func (fb *FileBinomiale) Size() uint {
+	var sum uint
+	for i := 0; i < len(*fb); i++ {
+		sum += uint(math.Pow(2, float64((*fb)[i].Degre)))
+	}
+	return sum
+}
+
 // AjoutMin ajoute un nœud de tournoi binomial avec un degré inférieur au degré du premier nœud de la file binomiale.
 // Elle renvoie une nouvelle file binomiale résultant de cet ajout.
 func (fb *FileBinomiale) AjoutMin(tb TournoiBinomial) FileBinomiale {
@@ -39,7 +51,7 @@ func (fb *FileBinomiale) AjoutMin(tb TournoiBinomial) FileBinomiale {
 	newFb := FileBinomiale{tb}
 
 	// Ajoute tous les éléments de la file binomiale originale après le nouveau nœud.
-	newFb = append(newFb, (*fb)...)
+	newFb = append(newFb, *fb...)
 
 	// Renvoie la nouvelle file binomiale résultant de cet ajout.
 	return newFb
@@ -70,22 +82,27 @@ func (fb *FileBinomiale) SupprMin() FileBinomiale {
 	// Assure que la file binomiale n'est pas vide avant de supprimer le minimum.
 	assert(!fb.EstVide(), "SupprMin sur file vide")
 
-	// Initialise le nœud minimal avec le premier élément de la file.
-	minimal := &(*fb)[0]
+	// Initialise le nœud smallest avec le premier élément de la file.
+	smallest := (*fb)[0]
+	smallestI := 0
 
 	// Parcours les éléments de la file pour trouver le nœud avec la clé minimale.
 	for i := 1; i < len(*fb); i++ {
 		curr := &(*fb)[i]
-		if minimal.Cle.Inf(*curr.Cle) {
-			minimal = curr
+		if curr.Cle.Inf(*smallest.Cle) {
+			smallest = *curr
+			smallestI = i
 		}
 	}
 
-	// Décapite le nœud minimal de la file.
-	decapite := minimal.Decapite()
+	*fb = slices.Delete(*fb, smallestI, smallestI+1)
+
+	// Décapite le nœud smallest de la file.
+	decapite := smallest.Decapite()
 
 	// Effectue l'union de la file binomiale d'origine avec la file résultante après la décapitation.
-	return fb.Union(decapite)
+	*fb = fb.Union(decapite)
+	return *fb
 }
 
 // Construction crée une file binomiale à partir d'une liste de clés.

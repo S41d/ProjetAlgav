@@ -91,10 +91,10 @@ func fileUnion(file1, file2 string) int64 {
 	return tEnd - tStart
 }
 
-func timeIt(f func()) int64 {
-	t := time.Now().UnixMicro()
+func timeIt(f func()) time.Duration {
+	t := time.Now()
 	f()
-	return time.Now().UnixMicro() - t
+	return time.Since(t)
 }
 
 func findMin(tab tasmin.Tableau) cle.Cle {
@@ -107,12 +107,6 @@ func findMin(tab tasmin.Tableau) cle.Cle {
 	return m
 }
 
-func timeItNano(f func()) int64 {
-	t := time.Now().UnixNano()
-	f()
-	return time.Now().UnixNano() - t
-}
-
 type timeS struct {
 	time int64
 	size int
@@ -120,11 +114,17 @@ type timeS struct {
 
 func md5Construction() ([]timeS, []timeS) {
 	data := experimentation.ParseBooks()
-	var timesTas []timeS
-	var timesFile []timeS
-	for _, currData := range data {
-		timesTas = append(timesTas, timeS{time: timeIt(func() { tasmin.Construction(currData) }), size: len(currData)})
-		timesFile = append(timesFile, timeS{time: timeIt(func() { filebinomiale.Construction(currData) }), size: len(currData)})
+	timesTas := make([]timeS, len(data))
+	timesFile := make([]timeS, len(data))
+	for i, currData := range data {
+		timesTas[i] = timeS{
+			time: timeIt(func() { tasmin.Construction(currData) }).Microseconds(),
+			size: len(currData),
+		}
+		timesFile[i] = timeS{
+			time: timeIt(func() { filebinomiale.Construction(currData) }).Microseconds(),
+			size: len(currData),
+		}
 	}
 	return timesTas, timesFile
 }
@@ -142,23 +142,33 @@ func md5SupprMin() ([]timeS, []timeS) {
 	}
 
 	tas := tasmin.Construction(allData)
-	file := filebinomiale.Construction(data[0])
+	file := filebinomiale.Construction(allData)
 
-	var timesTas []timeS
-	var timesFile []timeS
+	timesTas := make([]timeS, 200)
+	timesFile := make([]timeS, 200)
 
-	for i := 0; i < 20000; i++ {
-		timesTas = append(timesTas, timeS{
-			time: timeItNano(func() { tas.SupprMin() }),
-			size: len(data[0]) + 1 + i,
-		})
+	for i, j := 0, 0; i < 20000; i++ {
+		if i%100 == 0 {
+			timesTas[j] = timeS{
+				time: timeIt(func() { tas.SupprMin() }).Nanoseconds(),
+				size: len(tas),
+			}
+			j++
+		} else {
+			tas.SupprMin()
+		}
 	}
 
-	for i := 0; i < 2000; i++ {
-		timesFile = append(timesFile, timeS{
-			time: timeItNano(func() { file.SupprMin() }),
-			size: len(data[0]) + 1 + i,
-		})
+	for i, j := 0, 0; i < 20000; i++ {
+		if i%100 == 0 {
+			timesFile[j] = timeS{
+				time: timeIt(func() { file = file.SupprMin() }).Nanoseconds(),
+				size: int(file.Size()),
+			}
+			j++
+		} else {
+			file.SupprMin()
+		}
 	}
 
 	return timesTas, timesFile
@@ -173,14 +183,30 @@ func md5Ajout() ([]timeS, []timeS) {
 	}
 	file := filebinomiale.Construction(data[0])
 
-	var timesTas []timeS
-	for i := 0; i < 2000; i++ {
-		timesTas = append(timesTas, timeS{time: timeItNano(func() { tas.Ajout(restData[i]) }), size: len(data[0]) + i})
+	timesTas := make([]timeS, 200)
+	for i, j := 0, 0; i < 20000; i++ {
+		if i%100 == 0 {
+			timesTas[j] = timeS{
+				time: timeIt(func() { tas.Ajout(restData[i]) }).Nanoseconds(),
+				size: len(data[0]) + i,
+			}
+			j++
+		} else {
+			tas.Ajout(restData[i])
+		}
 	}
 
-	var timesFile []timeS
-	for i := 0; i < 2000; i++ {
-		timesFile = append(timesFile, timeS{time: timeItNano(func() { file.Ajout(restData[i]) }), size: len(data[0]) + i})
+	timesFile := make([]timeS, 200)
+	for i, j := 0, 0; i < 20000; i++ {
+		if i%100 == 0 {
+			timesFile[j] = timeS{
+				time: timeIt(func() { file.Ajout(restData[i]) }).Nanoseconds(),
+				size: len(data[0]) + i,
+			}
+			j++
+		} else {
+			file.Ajout(restData[i])
+		}
 	}
 
 	return timesTas, timesFile
@@ -192,16 +218,23 @@ func md5Union() ([]timeS, []timeS) {
 	tas := tasmin.Construction(data[0])
 	file := filebinomiale.Construction(data[0])
 
-	var timesTas []timeS
+	timesTas := make([]timeS, len(data)-1)
 	for i := 1; i < len(data); i++ {
 		toAdd := tasmin.Construction(data[i])
-		timesTas = append(timesTas, timeS{time: timeItNano(func() { tas.Union(toAdd) }), size: len(tas) + len(data[i])})
+		timesTas[i-1] = timeS{
+			time: timeIt(func() { tas.Union(toAdd) }).Nanoseconds(),
+			size: len(tas) + len(data[i]),
+		}
 	}
 
-	var timesFile []timeS
+	timesFile := make([]timeS, len(data)-1)
 	for i := 1; i < len(data); i++ {
 		toAdd := filebinomiale.Construction(data[i])
-		timesFile = append(timesFile, timeS{time: timeItNano(func() { file.Union(toAdd) }), size: len(data[i])})
+		size := file.Size()
+		timesFile[i-1] = timeS{
+			time: timeIt(func() { file = file.Union(toAdd) }).Nanoseconds(),
+			size: int(size) + len(data[i]),
+		}
 	}
 
 	return timesTas, timesFile
