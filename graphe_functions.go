@@ -28,7 +28,6 @@ func buildTasCharts() {
 		foreachJeu(bf.TabConstruction),
 	)
 
-	//
 	ajoutVsConsScatterBuilder(
 		"graphes/tas_min/construction_arbre.html",
 		"Tas Min (Arbre)",
@@ -110,6 +109,52 @@ func buildMd5Charts() {
 	fileVsTasScatterBuilder("graphes/md5/construction.html", "MD5 Construction", bf.Md5Construction)
 }
 
+func clesFromRange(start, end int) []cle.Cle {
+	var cles = make([]cle.Cle, end-start)
+	for i := 0; i < end-start; i++ {
+		cles[i] = cle.Cle{P1: uint64(i + start)}
+	}
+	return cles
+}
+
+func buildArbreExempleCharts() {
+	var builder = func(title string, a tasmin.Arbre) components.Charter {
+		var aTreeData = arbreToTreeData(a)
+		var chart = treeChartBuilder(aTreeData)
+		chart.SetGlobalOptions(charts.WithTitleOpts(opts.Title{Title: title}))
+		return chart
+	}
+
+	var cles = clesFromRange(1, 10)
+	var arbre = tasmin.ConstructionArbre(cles)
+	var charters = []components.Charter{
+		builder("Construction", arbre),
+	}
+
+	for i := 0; i < 4; i++ {
+		arbre.SupprMin()
+		charters = append(charters, builder("SupprMin", arbre))
+	}
+
+	for i := 0; i < 4; i++ {
+		arbre.Ajout(cle.Cle{P1: uint64(i + 1)})
+		charters = append(charters, builder(fmt.Sprintf("Ajout %d", i+1), arbre))
+	}
+
+	var a2 = tasmin.ConstructionArbre(clesFromRange(11, 15))
+	charters = append(charters, builder("a2:", a2))
+	arbre = arbre.Union(&a2)
+	charters = append(charters, builder("Union avec a2", arbre))
+
+	page := components.NewPage()
+	page.AddCharts(charters...)
+	page.PageTitle = "Tas Min Arbre"
+
+	page.SetLayout(components.PageCenterLayout)
+	f, _ := os.Create("graphes/exemples/arbre.html")
+	check(page.Render(f))
+}
+
 func arbreToTreeData(a tasmin.Arbre) opts.TreeData {
 	var children []*opts.TreeData
 	if a.EnfGauche != nil {
@@ -138,6 +183,44 @@ func arbreToTreeData(a tasmin.Arbre) opts.TreeData {
 		ItemStyle:  &style,
 	}
 	return node
+}
+
+func buildTabExempleCharts() {
+	var builder = func(title string, t tasmin.Tableau) components.Charter {
+		var aTreeData = tabminToTreeData(0, t)
+		var chart = treeChartBuilder(aTreeData)
+		chart.SetGlobalOptions(charts.WithTitleOpts(opts.Title{Title: title}))
+		return chart
+	}
+
+	var cles = clesFromRange(1, 10)
+	var tab = tasmin.Construction(cles)
+	var charters = []components.Charter{
+		builder("Construction", tab),
+	}
+
+	for i := 0; i < 4; i++ {
+		tab.SupprMin()
+		charters = append(charters, builder("SupprMin", tab))
+	}
+
+	for i := 0; i < 4; i++ {
+		tab.Ajout(cle.Cle{P1: uint64(i + 1)})
+		charters = append(charters, builder(fmt.Sprintf("Ajout %d", i+1), tab))
+	}
+
+	var tab2 = tasmin.Construction(clesFromRange(11, 15))
+	charters = append(charters, builder("t2:", tab2))
+	tab.Union(tab2)
+	charters = append(charters, builder("Union avec t2", tab))
+
+	page := components.NewPage()
+	page.AddCharts(charters...)
+	page.PageTitle = "Tas Min Tableau"
+
+	page.SetLayout(components.PageCenterLayout)
+	f, _ := os.Create("graphes/exemples/tableau.html")
+	check(page.Render(f))
 }
 
 func tabminToTreeData(index int, tab tasmin.Tableau) opts.TreeData {
@@ -170,6 +253,44 @@ func tabminToTreeData(index int, tab tasmin.Tableau) opts.TreeData {
 	return node
 }
 
+func buildFileExempleCharts() {
+	var builder = func(title string, fb filebinomiale.FileBinomiale) components.Charter {
+		var treeData = fileToTreeData(fb)
+		var chart = treeChartBuilder(opts.TreeData{Children: treeData})
+		chart.SetGlobalOptions(charts.WithTitleOpts(opts.Title{Title: title}))
+		return chart
+	}
+
+	var cles = clesFromRange(1, 10)
+	var fb = filebinomiale.Construction(cles)
+	var charters = []components.Charter{
+		builder("Construction", fb),
+	}
+
+	for i := 0; i < 4; i++ {
+		fb.SupprMin()
+		charters = append(charters, builder("SupprMin", fb))
+	}
+
+	for i := 0; i < 4; i++ {
+		fb = fb.Ajout(cle.Cle{P1: uint64(i + 1)})
+		charters = append(charters, builder(fmt.Sprintf("Ajout %d", i+1), fb))
+	}
+
+	var fb2 = filebinomiale.Construction(clesFromRange(11, 15))
+	charters = append(charters, builder("fb2:", fb2))
+	fb2 = fb2.Union(fb)
+	charters = append(charters, builder("Union avec fb2", fb2))
+
+	page := components.NewPage()
+	page.AddCharts(charters...)
+	page.PageTitle = "File Binomiale"
+
+	page.SetLayout(components.PageCenterLayout)
+	f, _ := os.Create("graphes/exemples/file.html")
+	check(page.Render(f))
+}
+
 func fileToTreeData(file filebinomiale.FileBinomiale) []*opts.TreeData {
 	var children []*opts.TreeData
 	if !file.EstVide() {
@@ -184,77 +305,6 @@ func fileToTreeData(file filebinomiale.FileBinomiale) []*opts.TreeData {
 		}
 	}
 	return children
-}
-
-func grapheExempleTasMinTableau() {
-	cles := []cle.Cle{
-		cle.HexToCle("1f"),
-		cle.HexToCle("1e"),
-		cle.HexToCle("1d"),
-		cle.HexToCle("1c"),
-		cle.HexToCle("1b"),
-		cle.HexToCle("1a"),
-		cle.HexToCle("19"),
-		cle.HexToCle("18"),
-		cle.HexToCle("17"),
-		cle.HexToCle("16"),
-		cle.HexToCle("15"),
-		cle.HexToCle("14"),
-		cle.HexToCle("13"),
-		cle.HexToCle("12"),
-		cle.HexToCle("11"),
-		cle.HexToCle("10"),
-		cle.HexToCle("f"),
-		cle.HexToCle("e"),
-		cle.HexToCle("d"),
-		cle.HexToCle("c"),
-		cle.HexToCle("b"),
-		cle.HexToCle("a"),
-		cle.HexToCle("9"),
-		cle.HexToCle("8"),
-		cle.HexToCle("7"),
-		cle.HexToCle("6"),
-		cle.HexToCle("5"),
-		cle.HexToCle("4"),
-		cle.HexToCle("3"),
-		cle.HexToCle("2"),
-		cle.HexToCle("1"),
-	}
-
-	tabmin := tasmin.Construction(cles)
-
-	treeChart := charts.NewTree()
-	treeChart.SetGlobalOptions(
-		charts.WithInitializationOpts(opts.Initialization{
-			Height: "800px",
-		}),
-		charts.WithTitleOpts(opts.Title{
-			Title: "Tas Min Tableau",
-			Left:  "center",
-		}),
-		charts.WithTooltipOpts(opts.Tooltip{Show: true}),
-		charts.WithLegendOpts(opts.Legend{Show: false}),
-	)
-	treeChart.AddSeries("tas", []opts.TreeData{tabminToTreeData(0, tabmin)}).SetSeriesOptions(
-		charts.WithTreeOpts(
-			opts.TreeChart{
-				Layout:           "orthogonal",
-				Orient:           "TB",
-				InitialTreeDepth: -1,
-			},
-		),
-		charts.WithSeriesAnimation(true),
-	)
-
-	page := components.NewPage()
-	page.AddCharts(
-		treeChart,
-	)
-	page.PageTitle = "Visu Tas min"
-
-	page.SetLayout(components.PageCenterLayout)
-	f, _ := os.Create("graphes/tas_min_visualization.html")
-	check(page.Render(f))
 }
 
 func createRegressionInstance(times []bf.Benchmark) *regression.Regression {
@@ -320,106 +370,6 @@ type dataSeries struct {
 	name string
 	typ  string
 	data interface{}
-}
-
-var cles = []cle.Cle{
-	cle.HexToCle("a"),
-	cle.HexToCle("9"),
-	cle.HexToCle("8"),
-	cle.HexToCle("7"),
-	cle.HexToCle("6"),
-	cle.HexToCle("5"),
-	cle.HexToCle("4"),
-	cle.HexToCle("3"),
-	cle.HexToCle("2"),
-	cle.HexToCle("1"),
-}
-
-func grapheExempleSupprMinArbre() {
-	arbre := tasmin.ConstructionArbre(cles)
-	var charters []components.Charter
-
-	for i := 0; i < 10; i++ {
-		aTreeData := arbreToTreeData(arbre)
-		charters = append(charters, treeChartBuilder(aTreeData))
-		arbre.SupprMin()
-	}
-
-	page := components.NewPage()
-	page.AddCharts(charters...)
-
-	page.SetLayout(components.PageCenterLayout)
-	f, _ := os.Create("graphes/arbre_suppr_min_visualization.html")
-	check(page.Render(f))
-}
-
-func grapheExempleSupprMinTab() {
-	tab := tasmin.Construction(cles)
-	var charters []components.Charter
-
-	for i := 0; i < 10; i++ {
-		tabTreeData := tabminToTreeData(0, tab)
-		charters = append(charters, treeChartBuilder(tabTreeData))
-		tab.SupprMin()
-	}
-
-	page := components.NewPage()
-	page.AddCharts(charters...)
-
-	page.SetLayout(components.PageCenterLayout)
-	f, _ := os.Create("graphes/tableau_suppr_min_visualization.html")
-	check(page.Render(f))
-}
-
-func grapheExempleSupprMinFile() {
-	fb := filebinomiale.Construction(cles)
-	var charters []components.Charter
-
-	for i := 0; i < 10; i++ {
-		charters = append(charters, treeChartBuilder(opts.TreeData{Children: fileToTreeData(fb)}))
-		fb.SupprMin()
-	}
-
-	page := components.NewPage()
-	page.AddCharts(charters...)
-
-	page.SetLayout(components.PageCenterLayout)
-	f, _ := os.Create("graphes/file_suppr_min_visualization.html")
-	check(page.Render(f))
-}
-
-func grapheExempleFileUnion() {
-	cles1 := []cle.Cle{
-		cle.HexToCle("5"),
-		cle.HexToCle("4"),
-		cle.HexToCle("3"),
-		cle.HexToCle("2"),
-		cle.HexToCle("1"),
-	}
-
-	cles2 := []cle.Cle{
-		cle.HexToCle("a"),
-		cle.HexToCle("9"),
-		cle.HexToCle("8"),
-		cle.HexToCle("7"),
-		cle.HexToCle("6"),
-	}
-
-	fb1 := filebinomiale.Construction(cles1)
-	chart1 := treeChartBuilder(opts.TreeData{Children: fileToTreeData(fb1)})
-	fb2 := filebinomiale.Construction(cles2)
-	chart2 := treeChartBuilder(opts.TreeData{Children: fileToTreeData(fb2)})
-
-	union := fb1.Union(fb2)
-	chart3 := treeChartBuilder(opts.TreeData{Children: fileToTreeData(union)})
-
-	page := components.NewPage()
-	page.AddCharts(chart1, chart2, chart3)
-	page.PageTitle = "Exemple file union"
-
-	page.SetLayout(components.PageCenterLayout)
-	f, _ := os.Create("graphes/file_exemple_union_visualization.html")
-	check(page.Render(f))
 }
 
 func tabVsArbreScatterBuilder(

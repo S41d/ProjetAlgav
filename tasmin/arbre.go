@@ -90,9 +90,7 @@ func (t *Arbre) Ajout(c cle.Cle) {
 	for curr.Parent != nil {
 		if !curr.Parent.Cle.Inf(curr.Cle) {
 			// Échanger les clés si la clé du Parent est supérieure à la clé actuelle
-			temp := *curr
-			curr.Cle = curr.Parent.Cle
-			curr.Parent.Cle = temp.Cle
+			curr.Cle, curr.Parent.Cle = curr.Parent.Cle, curr.Cle
 			curr = curr.Parent
 		} else {
 			break
@@ -233,6 +231,12 @@ func (t *Arbre) reOrganiser() {
 		smallest = t.EnfGauche
 	} else {
 		return
+	}
+	if t.EnfGauche != nil {
+		t.EnfGauche.Parent = t
+	}
+	if t.EnfDroit != nil {
+		t.EnfDroit.Parent = t
 	}
 	if smallest.Cle.Inf(t.Cle) {
 		t.Cle, smallest.Cle = smallest.Cle, t.Cle

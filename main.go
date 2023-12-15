@@ -1,13 +1,16 @@
 package main
 
 func main() {
-	grapheExempleTasMinTableau()
-	grapheExempleFileUnion()
-	grapheExempleSupprMinFile()
-	grapheExempleSupprMinTab()
-	grapheExempleSupprMinArbre()
+	// grapheExempleTasMinTableau()
+	// grapheExempleFileUnion()
+	// grapheExempleSupprMinFile()
+	// grapheExempleSupprMinTab()
+	// grapheExempleSupprMinArbre()
+	// buildArbreExempleCharts()
+	// buildTabExempleCharts()
+	// buildFileExempleCharts()
 
-	buildTasCharts()
+	// buildTasCharts()
 	buildFileCharts()
-	buildMd5Charts()
+	// buildMd5Charts()
 }

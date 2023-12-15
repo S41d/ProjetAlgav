@@ -135,8 +135,8 @@ func FileAjout(file string) int64 {
 	var cles = parseFile(file)
 	var fb = filebinomiale.Construction(cles[:len(cles)-2])
 	return timeIt(func() {
-		fb.Ajout(cles[len(cles)-1])
-	}).Microseconds()
+		fb = fb.Ajout(cles[len(cles)-1])
+	}).Nanoseconds()
 }
 
 func FileSupprMin(file string) int64 {
@@ -144,7 +144,7 @@ func FileSupprMin(file string) int64 {
 	var fb = filebinomiale.Construction(cles)
 	var moyenne = int64(0)
 	for i := 0; i < 500; i++ {
-		moyenne += timeIt(func() { fb.SupprMin() }).Nanoseconds()
+		moyenne += timeIt(func() { fb = fb.SupprMin() }).Nanoseconds()
 	}
 	moyenne /= 500
 	return moyenne
@@ -157,11 +157,9 @@ func FileUnion(file1, file2 string) int64 {
 	fb1 := filebinomiale.Construction(cles1)
 	fb2 := filebinomiale.Construction(cles2)
 
-	tStart := time.Now().UnixMicro()
-	fb1.Union(fb2)
-	tEnd := time.Now().UnixMicro()
-
-	return tEnd - tStart
+	return timeIt(func() {
+		fb1 = fb1.Union(fb2)
+	}).Nanoseconds()
 }
 
 func timeIt(f func()) time.Duration {
