@@ -12,6 +12,7 @@ import (
 	"strings"
 )
 
+// ParseBooksABR renvoi un arbre de recherche et une liste de tous les mots uniques parsés depuis les fichiers du répértoire ./Shakespeare
 func ParseBooksABR() (abr.ArbreRecherche, []string) {
 	fileEntries, err := os.ReadDir("./Shakespeare")
 	if err != nil {
@@ -42,6 +43,7 @@ func ParseBooksABR() (abr.ArbreRecherche, []string) {
 	return md5Tree, words
 }
 
+// ParseBooks renvoi une liste des cles parsés de chaque fichier dans le répértoire ./Shakespeare
 func ParseBooks() [][]cle.Cle {
 	fileEntries, err := os.ReadDir("./Shakespeare")
 	if err != nil {
@@ -72,6 +74,7 @@ func ParseBooks() [][]cle.Cle {
 	return cles
 }
 
+// CollisionMd5 renvoie la liste de tous les mots dont le hash md5 sont en collision
 func CollisionMd5(words []string) [][]string {
 	var motsEnCollision [][]string
 
