@@ -61,16 +61,16 @@ func TestFileBinomiale_UnionFile(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			got := tt.fb.Union(tt.args)
 			got.Size()
-			if !reflect.DeepEqual(got[0].Cle.P2, 3) {
+			if got[0].Cle.P2 != 3 {
 				t.Errorf("UnionFile() = %v, want 3", got[0].Cle.P2)
 			}
-			if !reflect.DeepEqual(got[0].Enfants[0].Cle.P2, 7) {
+			if got[0].Enfants[0].Cle.P2 != 7 {
 				t.Errorf("UnionFile() = %v, want 7", got[0].Enfants[0].Cle.P2)
 			}
-			if !reflect.DeepEqual(got[0].Enfants[1].Cle.P2, 4) {
+			if got[0].Enfants[1].Cle.P2 != 4 {
 				t.Errorf("UnionFile() = %v, want 4", got[0].Enfants[1].Cle.P2)
 			}
-			if !reflect.DeepEqual(got[0].Enfants[1].Enfants[0].Cle.P2, 11) {
+			if got[0].Enfants[1].Enfants[0].Cle.P2 != 11 {
 				t.Errorf("UnionFile() = %v, want 11", got[0].Enfants[1].Enfants[0].Cle.P2)
 			}
 		})
