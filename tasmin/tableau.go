@@ -7,7 +7,7 @@ import (
 
 type Tableau []cle.Cle
 
-// Parent retourne l'indice du parent de l'élément situé à l'indice donné dans le tableau.
+// Parent retourne l'indice du Parent de l'élément situé à l'indice donné dans le tableau.
 func (*Tableau) Parent(i int) int {
 	return (i - 1) / 2
 }
@@ -52,15 +52,15 @@ func (t *Tableau) Ajout(c cle.Cle) {
 	// Récupérer l'indice actuel de la nouvelle clé.
 	currI := len(*t) - 1
 
-	// Calculer l'indice du parent dans le tableau.
+	// Calculer l'indice du Parent dans le tableau.
 	parentI := t.Parent(currI)
 
-	// Vérifier si la nouvelle clé est inférieure à son parent.
+	// Vérifier si la nouvelle clé est inférieure à son Parent.
 	currInfParent := (*t)[currI].Inf((*t)[parentI])
 
 	// Réorganiser le tableau tant que la propriété du tas est violée.
 	for currI > 0 && currInfParent {
-		// Échanger la nouvelle clé avec son parent.
+		// Échanger la nouvelle clé avec son Parent.
 		(*t)[parentI], (*t)[currI] = (*t)[currI], (*t)[parentI]
 
 		// Mettre à jour les indices pour le prochain tour de boucle.
@@ -88,7 +88,7 @@ func Construction(cles []cle.Cle) Tableau {
 
 	// Trouver l'indice du dernier nœud ayant des enfants dans le tableau.
 	// Cela permet de commencer la construction du tas à partir du bas.
-	//start := (len(cles) / 2) - 1
+	// start := (len(cles) / 2) - 1
 
 	// Itérer à partir du dernier nœud avec des enfants jusqu'au premier nœud du tableau.
 	for i := len(t) - 1; i >= 0; i-- {
@@ -149,10 +149,10 @@ func (t *Tableau) _string(i int, indent int) string {
 	// Initialise la chaîne avec le début de la représentation du tas.
 	str := "Tas{\n"
 	indent += 1
-	// str += strings.Repeat("│ ", indent) + "cle: " + (*t)[i].DecimalString() + ",\n"
+	// str += strings.Repeat("│ ", indent) + "Cle: " + (*t)[i].DecimalString() + ",\n"
 
 	// Ajoute la représentation en chaîne de l'élément actuel avec son indentation.
-	str += strings.Repeat("  ", indent) + "cle: " + (*t)[i].DecimalString() + ",\n"
+	str += strings.Repeat("  ", indent) + "Cle: " + (*t)[i].DecimalString() + ",\n"
 
 	// Calcul des indices des fils gauche et droit de l'élément actuel.
 	leftI := t.EnfGauche(i)

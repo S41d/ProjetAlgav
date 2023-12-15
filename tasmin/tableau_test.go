@@ -169,7 +169,7 @@ func TestTableau_Parent(t *testing.T) {
 				// Ajouter d'autres éléments du tableau si nécessaire
 			},
 			args: args{i: 2},
-			want: 0, // L'indice correspondant au parent de {P1: 2, P2: 2} est 0
+			want: 0, // L'indice correspondant au Parent de {P1: 2, P2: 2} est 0
 		},
 	}
 	for _, tt := range tests {
@@ -201,7 +201,7 @@ func TestTableau_String(t *testing.T) {
 				cle.Cle{P1: 0, P2: 15},
 				cle.Cle{P1: 0, P2: 14},
 			},
-			want: "Tas{\n  cle: 2,\n  left: Tas{\n    cle: 6,\n    left: Tas{\n      cle: 10,\n      left: Tas{\n        cle: 12,\n        left: nil,\n        right: nil\n      },\n      right: Tas{\n        cle: 15,\n        left: nil,\n        right: nil\n      }\n    },\n    right: Tas{\n      cle: 13,\n      left: Tas{\n        cle: 14,\n        left: nil,\n        right: nil\n      },\n      right: nil\n    }\n  },\n  right: Tas{\n    cle: 5,\n    left: Tas{\n      cle: 7,\n      left: nil,\n      right: nil\n    },\n    right: Tas{\n      cle: 8,\n      left: nil,\n      right: nil\n    }\n  }\n}\n",
+			want: "Tas{\n  Cle: 2,\n  left: Tas{\n    Cle: 6,\n    left: Tas{\n      Cle: 10,\n      left: Tas{\n        Cle: 12,\n        left: nil,\n        right: nil\n      },\n      right: Tas{\n        Cle: 15,\n        left: nil,\n        right: nil\n      }\n    },\n    right: Tas{\n      Cle: 13,\n      left: Tas{\n        Cle: 14,\n        left: nil,\n        right: nil\n      },\n      right: nil\n    }\n  },\n  right: Tas{\n    Cle: 5,\n    left: Tas{\n      Cle: 7,\n      left: nil,\n      right: nil\n    },\n    right: Tas{\n      Cle: 8,\n      left: nil,\n      right: nil\n    }\n  }\n}\n",
 		},
 	}
 	for _, tt := range tests {
@@ -301,8 +301,8 @@ func TestTableau__string(t *testing.T) {
 				cle.Cle{P1: 0, P2: 14},
 			},
 			args: args{i: 0, indent: 0},
-			// want: "Tas{\n          cle: 2,\n          left: Tas{\n            cle: 6,\n            left: Tas{\n              cle: 10,\n              left: Tas{\n                cle: 12,\n                left: nil,\n                right: nil\n              },\n              right: Tas{\n                cle: 15,\n                left: nil,\n                right: nil\n              }\n            },\n            right: Tas{\n              cle: 13,\n              left: Tas{\n                cle: 14,\n                left: nil,\n                right: nil\n              },\n              right: nil\n            }\n          },\n          right: Tas{\n            cle: 5,\n            left: Tas{\n              cle: 7,\n              left: nil,\n              right: nil\n            },\n            right: Tas{\n              cle: 8,\n              left: nil,\n              right: nil\n            }\n          }\n        }"},
-			want: "Tas{\n  cle: 2,\n  left: Tas{\n    cle: 6,\n    left: Tas{\n      cle: 10,\n      left: Tas{\n        cle: 12,\n        left: nil,\n        right: nil\n      },\n      right: Tas{\n        cle: 15,\n        left: nil,\n        right: nil\n      }\n    },\n    right: Tas{\n      cle: 13,\n      left: Tas{\n        cle: 14,\n        left: nil,\n        right: nil\n      },\n      right: nil\n    }\n  },\n  right: Tas{\n    cle: 5,\n    left: Tas{\n      cle: 7,\n      left: nil,\n      right: nil\n    },\n    right: Tas{\n      cle: 8,\n      left: nil,\n      right: nil\n    }\n  }\n}",
+			// want: "Tas{\n          Cle: 2,\n          left: Tas{\n            Cle: 6,\n            left: Tas{\n              Cle: 10,\n              left: Tas{\n                Cle: 12,\n                left: nil,\n                right: nil\n              },\n              right: Tas{\n                Cle: 15,\n                left: nil,\n                right: nil\n              }\n            },\n            right: Tas{\n              Cle: 13,\n              left: Tas{\n                Cle: 14,\n                left: nil,\n                right: nil\n              },\n              right: nil\n            }\n          },\n          right: Tas{\n            Cle: 5,\n            left: Tas{\n              Cle: 7,\n              left: nil,\n              right: nil\n            },\n            right: Tas{\n              Cle: 8,\n              left: nil,\n              right: nil\n            }\n          }\n        }"},
+			want: "Tas{\n  Cle: 2,\n  left: Tas{\n    Cle: 6,\n    left: Tas{\n      Cle: 10,\n      left: Tas{\n        Cle: 12,\n        left: nil,\n        right: nil\n      },\n      right: Tas{\n        Cle: 15,\n        left: nil,\n        right: nil\n      }\n    },\n    right: Tas{\n      Cle: 13,\n      left: Tas{\n        Cle: 14,\n        left: nil,\n        right: nil\n      },\n      right: nil\n    }\n  },\n  right: Tas{\n    Cle: 5,\n    left: Tas{\n      Cle: 7,\n      left: nil,\n      right: nil\n    },\n    right: Tas{\n      Cle: 8,\n      left: nil,\n      right: nil\n    }\n  }\n}",
 		},
 	}
 	for _, tt := range tests {
@@ -331,7 +331,7 @@ func TestTableau_trier(t *testing.T) {
 			t:    Tableau{cle.Cle{P1: 0, P2: 10}, cle.Cle{P1: 0, P2: 6}, cle.Cle{P1: 0, P2: 8}, cle.Cle{P1: 0, P2: 15}, cle.Cle{P1: 0, P2: 14}, cle.Cle{P1: 0, P2: 7}, cle.Cle{P1: 0, P2: 2}, cle.Cle{P1: 0, P2: 12}, cle.Cle{P1: 0, P2: 5}, cle.Cle{P1: 0, P2: 13}},
 			args: args{index: 0},
 			want: Tableau{cle.Cle{P1: 0, P2: 6}, cle.Cle{P1: 0, P2: 10}, cle.Cle{P1: 0, P2: 8}, cle.Cle{P1: 0, P2: 15}, cle.Cle{P1: 0, P2: 14}, cle.Cle{P1: 0, P2: 7}, cle.Cle{P1: 0, P2: 2}, cle.Cle{P1: 0, P2: 12}, cle.Cle{P1: 0, P2: 5}, cle.Cle{P1: 0, P2: 13}},
-			// want: Tableau{cle.Cle{P1: 0, P2: 2}, cle.Cle{P1: 0, P2: 6}, cle.Cle{P1: 0, P2: 7}, cle.Cle{P1: 0, P2: 10}, cle.Cle{P1: 0, P2: 13}, cle.Cle{P1: 0, P2: 8}, cle.Cle{P1: 0, P2: 10}, cle.Cle{P1: 0, P2: 12}, cle.Cle{P1: 0, P2: 15}, cle.Cle{P1: 0, P2: 14}},
+			// want: Tableau{Cle.Cle{P1: 0, P2: 2}, Cle.Cle{P1: 0, P2: 6}, Cle.Cle{P1: 0, P2: 7}, Cle.Cle{P1: 0, P2: 10}, Cle.Cle{P1: 0, P2: 13}, Cle.Cle{P1: 0, P2: 8}, Cle.Cle{P1: 0, P2: 10}, Cle.Cle{P1: 0, P2: 12}, Cle.Cle{P1: 0, P2: 15}, Cle.Cle{P1: 0, P2: 14}},
 		},
 	}
 	for _, tt := range tests {

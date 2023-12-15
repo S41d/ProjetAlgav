@@ -1,13 +1,9 @@
 package tasmin
 
 import (
-	"fmt"
 	"math"
-	"os"
-	"os/signal"
 	"projet/cle"
 	"strings"
-	"syscall"
 )
 
 // Arbre est une structure de données représentant un nœud dans un arbre.
@@ -15,18 +11,16 @@ type Arbre struct {
 	// Size indique le nombre total de nœuds dans le sous-arbre enraciné à ce nœud.
 	Size int
 	// Height représente la hauteur du sous-arbre enraciné à ce nœud.
-	height int
+	Height int
 	// Cle est la valeur de la clé stockée dans ce nœud.
-	cle cle.Cle
-	// Parent pointe vers le nœud parent dans l'arbre.
-	parent *Arbre
+	Cle cle.Cle
+	// Parent pointe vers le nœud Parent dans l'arbre.
+	Parent *Arbre
 	// LeftChild pointe vers le nœud enfant gauche dans l'arbre.
-	leftChild *Arbre
+	EnfGauche *Arbre
 	// RightChild pointe vers le nœud enfant droit dans l'arbre.
-	rightChild *Arbre
+	EnfDroit *Arbre
 }
-
-var index = 0
 
 // Ajout ajoute un élément à l'arbre.
 func (t *Arbre) Ajout(c cle.Cle) {
@@ -38,68 +32,68 @@ func (t *Arbre) Ajout(c cle.Cle) {
 	curr := t
 
 	// Vérifier si l'arbre est plein (2^h - 1 nœuds), où h est la hauteur actuelle de l'arbre
-	if curr.Size == pow(2, curr.height)-1 {
+	if curr.Size == pow(2, curr.Height)-1 {
 		// Si l'arbre est plein, descendre à gauche jusqu'au dernier niveau
-		for curr.leftChild != nil {
+		for curr.EnfGauche != nil {
 			curr.Size += 1
-			curr.height += 1
-			curr = curr.leftChild
+			curr.Height += 1
+			curr = curr.EnfGauche
 		}
 
 		// Mettre à jour la taille et la hauteur du nœud actuel
 		curr.Size += 1
-		curr.height += 1
+		curr.Height += 1
 
 		// Ajouter un nouveau nœud à gauche avec la clé donnée
-		curr.leftChild = &Arbre{cle: c, Size: 1, height: 1, parent: curr}
-		curr = curr.leftChild
+		curr.EnfGauche = &Arbre{Cle: c, Size: 1, Height: 1, Parent: curr}
+		curr = curr.EnfGauche
 	} else {
 		// Si l'arbre n'est pas plein, parcourir l'arbre pour trouver l'emplacement d'insertion
 		for {
 			curr.Size += 1
 
 			// Si le nœud courant n'a pas d'enfant gauche, ajouter le nouveau nœud à gauche
-			if curr.leftChild == nil {
-				curr.height += 1
-				curr.leftChild = &Arbre{cle: c, Size: 1, height: 1, parent: curr}
+			if curr.EnfGauche == nil {
+				curr.Height += 1
+				curr.EnfGauche = &Arbre{Cle: c, Size: 1, Height: 1, Parent: curr}
 
 				// Mettre à jour la hauteur des parents jusqu'à la racine
 				currHeight := curr
-				for currHeight.parent != nil {
-					if currHeight.parent.height == currHeight.height+1 {
+				for currHeight.Parent != nil {
+					if currHeight.Parent.Height == currHeight.Height+1 {
 						break
 					}
-					currHeight.parent.height += 1
-					currHeight = currHeight.parent
+					currHeight.Parent.Height += 1
+					currHeight = currHeight.Parent
 				}
 
 				// Aller au nouveau nœud ajouté
-				curr = curr.leftChild
+				curr = curr.EnfGauche
 				break
-			} else if curr.rightChild == nil {
+			} else if curr.EnfDroit == nil {
 				// Si le nœud courant n'a pas d'enfant droit, ajouter le nouveau nœud à droite
-				curr.rightChild = &Arbre{cle: c, Size: 1, height: 1, parent: curr}
-				curr = curr.rightChild
+				curr.EnfDroit = &Arbre{Cle: c, Size: 1, Height: 1, Parent: curr}
+				curr = curr.EnfDroit
 				break
 			}
 
 			// Choisir le chemin en fonction de la taille des sous-arbres
-			if curr.leftChild.Size <= curr.rightChild.Size || curr.leftChild.Size != pow(2, curr.leftChild.height)-1 {
-				curr = curr.leftChild
+			if curr.EnfGauche.Size <= curr.EnfDroit.Size || curr.EnfGauche.Size != pow(2, curr.EnfGauche.Height)-1 {
+				curr = curr.EnfGauche
 			} else {
-				curr = curr.rightChild
+				curr = curr.EnfDroit
 			}
 		} // for
 	} // else
 
 	// Rétablir la propriété de l'arbre binaire équilibré en effectuant des échanges
-	for curr.parent != nil {
-		if !curr.parent.cle.Inf(curr.cle) {
-			// Échanger les clés si la clé du parent est supérieure à la clé actuelle
+	for curr.Parent != nil {
+		if !curr.Parent.Cle.Inf(curr.Cle) {
+			// Échanger les clés si la clé du Parent est supérieure à la clé actuelle
 			temp := *curr
-			curr.cle = curr.parent.cle
-			curr.parent.cle = temp.cle
-			curr = curr.parent
+			curr.Cle = curr.Parent.Cle
+			curr.Parent.Cle = temp.Cle
+			curr = curr.Parent
 		} else {
 			break
 		}
@@ -132,20 +126,20 @@ func ConstructionArbre(cles []cle.Cle) Arbre {
 				break
 			}
 			if k != len(nodesEnf)-1 {
-				nodes[j].leftChild = &nodesEnf[k]
-				nodes[j].rightChild = &nodesEnf[k+1]
+				nodes[j].EnfGauche = &nodesEnf[k]
+				nodes[j].EnfDroit = &nodesEnf[k+1]
 
-				nodes[j].leftChild.parent = &nodes[j]
-				nodes[j].rightChild.parent = &nodes[j]
+				nodes[j].EnfGauche.Parent = &nodes[j]
+				nodes[j].EnfDroit.Parent = &nodes[j]
 
-				nodes[j].Size = 1 + nodes[j].leftChild.Size + nodes[j].rightChild.Size
-				nodes[j].height = 1 + max(nodes[j].leftChild.height, nodes[j].rightChild.height)
+				nodes[j].Size = 1 + nodes[j].EnfGauche.Size + nodes[j].EnfDroit.Size
+				nodes[j].Height = 1 + max(nodes[j].EnfGauche.Height, nodes[j].EnfDroit.Height)
 			} else {
-				nodes[j].leftChild = &nodesEnf[k]
-				nodes[j].leftChild.parent = &nodes[j]
+				nodes[j].EnfGauche = &nodesEnf[k]
+				nodes[j].EnfGauche.Parent = &nodes[j]
 
 				nodes[j].Size = 1 + nodesEnf[k].Size
-				nodes[j].height = 1 + nodesEnf[k].height
+				nodes[j].Height = 1 + nodesEnf[k].Height
 			}
 			nodes[j].reOrganiser()
 		}
@@ -157,47 +151,49 @@ func ConstructionArbre(cles []cle.Cle) Arbre {
 
 func (t *Arbre) SupprMin() cle.Cle {
 	if t.Size == 1 {
-		return t.cle
+		return t.Cle
 	}
-	deleted := t.cle
+	deleted := t.Cle
+
+	adjustHeight := func(curr *Arbre) {
+		for curr.Parent != nil {
+			p := curr.Parent
+			if p.EnfGauche == curr {
+				p.Height -= 1
+				curr = p
+			} else {
+				break
+			}
+		}
+	}
 
 	curr := t
 	for curr.Size != 1 {
-		curr.Size -= 1
-		if curr.rightChild != nil {
-			if curr.leftChild.height == curr.rightChild.height {
-				curr = curr.rightChild
+		if curr.EnfDroit != nil {
+			if curr.EnfGauche.Height == curr.EnfDroit.Height {
+				curr = curr.EnfDroit
 			} else {
-				// hauteur de leftChild >= hauteur de rightChild
-				curr = curr.leftChild
+				// hauteur de EnfGauche >= hauteur de EnfDroit
+				curr = curr.EnfGauche
 			}
-		} else if curr.leftChild != nil {
-			curr = curr.leftChild
+		} else if curr.EnfGauche != nil {
+			curr = curr.EnfGauche
 		}
 	}
-	m := curr.cle
-	if curr.parent.leftChild == curr {
-		curr.parent.leftChild = nil
-		for {
-			curr.height -= 1
-			p := curr.parent
-			maxH := p.height
-			if p.leftChild != nil && p.leftChild.height > maxH {
-				// left est toujours plus grand que right
-				maxH = p.leftChild.height
-			}
-			if p.height == maxH {
-				break
-			}
-			curr = p
-		}
+	m := curr.Cle
+	if curr.Parent.EnfGauche == curr {
+		toDelete := curr
+		adjustHeight(curr)
+		// toDelete.Parent.Size--
+		toDelete.Parent.EnfGauche = nil
 	} else {
-		curr.parent.rightChild = nil
+		curr.Parent.EnfDroit = nil
 	}
-	for curr.parent != nil {
-		curr = curr.parent
+	for curr.Parent != nil {
+		curr.Parent.Size--
+		curr = curr.Parent
 	}
-	curr.cle = m
+	curr.Cle = m
 	*t = *curr
 	t.reOrganiser()
 	return deleted
@@ -213,12 +209,12 @@ func ClesOfArbre(a *Arbre) []cle.Cle {
 
 	var aux func(curr *Arbre, idx int)
 	aux = func(curr *Arbre, idx int) {
-		cles[idx] = curr.cle
-		if curr.leftChild != nil {
-			aux(curr.leftChild, (2*idx)+1)
+		cles[idx] = curr.Cle
+		if curr.EnfGauche != nil {
+			aux(curr.EnfGauche, (2*idx)+1)
 		}
-		if curr.rightChild != nil {
-			aux(curr.rightChild, (2*idx)+2)
+		if curr.EnfDroit != nil {
+			aux(curr.EnfDroit, (2*idx)+2)
 		}
 	}
 	aux(a, 0)
@@ -227,28 +223,25 @@ func ClesOfArbre(a *Arbre) []cle.Cle {
 
 func (t *Arbre) reOrganiser() {
 	smallest := &Arbre{}
-	if t.leftChild != nil && t.rightChild != nil {
-		if t.leftChild.cle.Inf(t.rightChild.cle) {
-			smallest = t.leftChild
+	if t.EnfGauche != nil && t.EnfDroit != nil {
+		if t.EnfGauche.Cle.Inf(t.EnfDroit.Cle) {
+			smallest = t.EnfGauche
 		} else {
-			smallest = t.rightChild
+			smallest = t.EnfDroit
 		}
-	} else if t.leftChild != nil {
-		smallest = t.leftChild
+	} else if t.EnfGauche != nil {
+		smallest = t.EnfGauche
 	} else {
 		return
 	}
-	if smallest.cle.Inf(t.cle) {
-		t.cle, smallest.cle = smallest.cle, t.cle
+	if smallest.Cle.Inf(t.Cle) {
+		t.Cle, smallest.Cle = smallest.Cle, t.Cle
 		smallest.reOrganiser()
 	}
 }
 
 // AjoutIteratif ajoute de manière itérative une liste de clés à l'arbre.
 func (t *Arbre) AjoutIteratif(cles []cle.Cle) {
-	// Appeler la fonction pour gérer les signaux (à implémenter ailleurs dans votre code)
-	setSigHandler()
-
 	// Parcourir toutes les clés dans la liste
 	for index := 0; index < len(cles); index++ {
 		// Appeler la fonction Ajout pour ajouter la clé actuelle à l'arbre
@@ -263,22 +256,22 @@ func (t *Arbre) _string(indent int) string {
 	indent += 1 // Augmenter l'indentation pour les sous-arbres
 
 	// Ajouter la représentation en chaîne de la clé du nœud courant
-	str += strings.Repeat("  ", indent) + "cle: " + t.cle.DecimalString() + ",\n"
+	str += strings.Repeat("  ", indent) + "Cle: " + t.Cle.DecimalString() + ",\n"
 
 	// Ajouter d'autres propriétés du nœud (commentées pour le moment)
 	// str += strings.Repeat("  ", indent) + "size: " + fmt.Sprint(t.size) + ",\n"
-	// str += strings.Repeat("  ", indent) + "height: " + fmt.Sprint(t.height) + ",\n"
+	// str += strings.Repeat("  ", indent) + "Height: " + fmt.Sprint(t.Height) + ",\n"
 
 	// Ajouter la représentation en chaîne du sous-arbre gauche
-	if t.leftChild != nil {
-		str += strings.Repeat("  ", indent) + "left: " + t.leftChild._string(indent) + ",\n"
+	if t.EnfGauche != nil {
+		str += strings.Repeat("  ", indent) + "left: " + t.EnfGauche._string(indent) + ",\n"
 	} else {
 		str += strings.Repeat("  ", indent) + "left: nil,\n"
 	}
 
 	// Ajouter la représentation en chaîne du sous-arbre droit
-	if t.rightChild != nil {
-		str += strings.Repeat("  ", indent) + "right: " + t.rightChild._string(indent) + "\n"
+	if t.EnfDroit != nil {
+		str += strings.Repeat("  ", indent) + "right: " + t.EnfDroit._string(indent) + "\n"
 	} else {
 		str += strings.Repeat("  ", indent) + "right: nil\n"
 	}
@@ -289,32 +282,9 @@ func (t *Arbre) _string(indent int) string {
 	return str
 }
 
-// setSigHandler configure un gestionnaire de signaux pour intercepter le signal SIGQUIT.
-func setSigHandler() {
-	// Créer un canal (channel) pour recevoir les signaux
-	sigChan := make(chan os.Signal, 1)
-
-	// Notifier le canal lorsqu'un signal SIGQUIT est reçu
-	signal.Notify(sigChan, syscall.SIGQUIT)
-
-	// Lancer une goroutine pour traiter les signaux en arrière-plan
-	go func() {
-		for {
-			// Attendre la réception d'un signal sur le canal
-			s := <-sigChan
-
-			// Vérifier si le signal reçu est SIGQUIT
-			if s == syscall.SIGQUIT {
-				// affiche la valeur de l'index
-				fmt.Println(index)
-			}
-		}
-	}()
-}
-
 // NewArbre crée un nouvel arbre avec la clé spécifiée, initialisant la hauteur à 1 et la taille à 1.
 func NewArbre(c cle.Cle) Arbre {
-	return Arbre{cle: c, height: 1, Size: 1}
+	return Arbre{Cle: c, Height: 1, Size: 1}
 }
 
 // pow retourne x élevé à la puissance y.
@@ -328,7 +298,7 @@ func (t *Arbre) String() string {
 }
 
 func listCleToListArbre(cles []cle.Cle) []Arbre {
-	arbres := []Arbre{}
+	var arbres []Arbre
 	for i := 0; i < len(cles); i++ {
 		arbres = append(arbres, NewArbre(cles[i]))
 	}
