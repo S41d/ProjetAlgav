@@ -1,16 +1,19 @@
 package main
 
-func main() {
-	// grapheExempleTasMinTableau()
-	// grapheExempleFileUnion()
-	// grapheExempleSupprMinFile()
-	// grapheExempleSupprMinTab()
-	// grapheExempleSupprMinArbre()
-	// buildArbreExempleCharts()
-	// buildTabExempleCharts()
-	// buildFileExempleCharts()
+import (
+	"fmt"
+	"projet/experimentation"
+)
 
-	// buildTasCharts()
+func main() {
+	buildArbreExempleCharts()
+	buildTabExempleCharts()
+	buildFileExempleCharts()
+
+	buildTasCharts()
 	buildFileCharts()
-	// buildMd5Charts()
+	buildMd5Charts()
+
+	var _, words = experimentation.ParseBooksABR()
+	fmt.Println("nb mots:", len(words))
 }

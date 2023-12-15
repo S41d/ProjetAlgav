@@ -1,7 +1,6 @@
 package experimentation
 
 import (
-	crypto "crypto/md5"
 	"fmt"
 	"log"
 	"os"
@@ -79,13 +78,13 @@ func CollisionMd5(words []string) [][]string {
 	for i := 0; i < len(words); i++ {
 		currCollisions := []string{words[i]}
 
-		currHash := crypto.Sum([]byte(words[i]))
+		currHash := md5.Md5New([]byte(words[i]))
 		fmt.Println(i+1, "/", len(words), currHash)
 		for j := 0; j < len(words); j++ {
 			if i == j {
 				continue
 			}
-			targetHash := crypto.Sum([]byte(words[j]))
+			targetHash := md5.Md5New([]byte(words[j]))
 			if reflect.DeepEqual(currHash, targetHash) {
 				currCollisions = append(currCollisions, words[j])
 			}
